@@ -2,13 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# GET         /signin                          controllers.ApplicationController.signIn
+POST          /signin/credentials              controllers.SignInCredentialsController.signIn
+#POST         /signin/:provider                controllers.SignInSocialController.signIn
 # GET         /signout                         controllers.ApplicationController.signOut
-# POST        /authenticate/credentials        controllers.CredentialsAuthController.authenticate
 
-# GET         /signup                          controllers.SignUpController.signUpRequest
-# POST        /signup                          controllers.SignUpController.signUpRequestRegistration
-# GET         /signup/:token                   controllers.SignUpController.signUpCompletion(token)
+POST        /signup                          controllers.SignUpController.signUpRequestRegistration
+# GET         /signup/:token                   controllers.SignController.signUpCompletion(token)
+
+# GET         /verify
 
 # GET         /reset                           controllers.PasswordChangeController.startResetPassword
 # POST        /reset                           controllers.PasswordChangeController.handleStartResetPassword

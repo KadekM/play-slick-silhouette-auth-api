@@ -1,6 +1,6 @@
 package mapping
 
-import model.User
+import model.core.User
 import slick.driver.H2Driver.api._
 
 /*
