@@ -6,7 +6,7 @@ import java.util.UUID
 import com.google.inject.Inject
 import model.core.UserToken
 import model.core.UserToken.UserTokenAction
-import service.{Hasher, UserTokenService}
+import service.{ Hasher, UserTokenService }
 
 import scala.concurrent.Future
 import scala.collection.mutable
@@ -22,7 +22,7 @@ class UserTokenServiceImpl extends UserTokenService {
 /**
   * Not thread safe. Usage in production is discouraged (as it needs to be singleton).
   */
-class InMemoryUserTokenServiceImpl @Inject()(hasher: Hasher) extends UserTokenService {
+class InMemoryUserTokenServiceImpl @Inject() (hasher: Hasher) extends UserTokenService {
 
   val tokens: ArrayBuffer[UserToken] = ArrayBuffer.empty[UserToken]
 
@@ -36,7 +36,8 @@ class InMemoryUserTokenServiceImpl @Inject()(hasher: Hasher) extends UserTokenSe
   }
 
   override def claim(token: String): Future[Option[UserToken]] = {
-    val t = tokens.find(x => x.token == token)
+    val t = tokens.find(x ⇒ x.token == token)
+    t.map(found ⇒ tokens -= found)
     Future.successful(t)
   }
 }

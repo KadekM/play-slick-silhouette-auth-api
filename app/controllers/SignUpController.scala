@@ -25,7 +25,7 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
                                   passwordHasher: PasswordHasher,
                                   translate: MessagesApi,
                                   userService: UserService,
-                                  regTokenService: UserTokenService,
+                                  userTokenService: UserTokenService,
                                   authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
 
   import model.exchange.format.rest._
@@ -50,7 +50,7 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
           for {
             user ← userService.save(user)
             authInfo ← authInfoRepository.add(loginInfo, authInfo)
-            registrationToken ← regTokenService.issue(user.uuid, TokenAction.ActivateAccount)
+            registrationToken ← userTokenService.issue(user.uuid, TokenAction.ActivateAccount)
           } yield {
             // TODO: remove token from here, do not return it, so users have to visit email
             Ok(Json.toJson(Good(registrationToken.token)))
@@ -59,16 +59,5 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
     }.recoverTotal(badRequestWithMessage)
   }
 
-  // TODO prehaps token controller with email/auth etc?
-  /**
-    * Tries to validate token and activate user
-    */
-  def signUpCompletion(token: String) = Action.async { implicit request ⇒
-    regTokenService.claim(token).map {
-      case Some(claimedToken) ⇒
-        userService.setState(claimedToken.userUuid, User.State.Activated)
-        Ok(Json.toJson(Good("token.ok")))
-      case None               ⇒ NotFound(Json.toJson(Bad(message = "token.invalid")))
-    }
-  }
+
 }

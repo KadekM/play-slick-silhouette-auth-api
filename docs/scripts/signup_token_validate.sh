@@ -1,1 +1,0 @@
-curl http://localhost:9000/signup/$1

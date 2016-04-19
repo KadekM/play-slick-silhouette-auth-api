@@ -1,0 +1,1 @@
+curl http://localhost:9000/token/$1

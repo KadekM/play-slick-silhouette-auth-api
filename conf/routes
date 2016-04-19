@@ -7,8 +7,7 @@ POST          /signin/credentials              controllers.SignInCredentialsCont
 # GET         /signout                         controllers.ApplicationController.signOut
 
 POST        /signup                          controllers.SignUpController.signUpRequestRegistration
-#POST        /signup/reset
-GET         /signup/:token                   controllers.SignUpController.signUpCompletion(token)
+GET         /token/:token                   controllers.TokenController.execute(token)
 
 
 # GET         /verify
