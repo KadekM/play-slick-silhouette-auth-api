@@ -23,7 +23,7 @@ import scala.concurrent.Future
   */
 class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
                                   passwordHasher: PasswordHasher,
-                                  messagesApi: MessagesApi,
+                                  translate: MessagesApi,
                                   userService: UserService,
                                   regTokenService: UserTokenService,
                                   authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
@@ -40,7 +40,7 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
 
       userService.retrieve(loginInfo).flatMap {
         case Some(user) ⇒
-          Future.successful(BadRequest(Json.toJson(Bad(message = messagesApi("user.exists")))))
+          Future.successful(BadRequest(Json.toJson(Bad(message = translate("user.exists")))))
 
         case None ⇒
           val authInfo = passwordHasher.hash(signUp.password)

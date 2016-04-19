@@ -7,11 +7,11 @@ import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import model.core.User
-import model.core.User.State.{Activated, Deactivated}
-import model.exchange.{Bad, Token}
+import model.core.User.State.{ Activated, Deactivated }
+import model.exchange.{ Bad, Token }
 import play.api.i18n.MessagesApi
-import play.api.libs.json.{JsError, JsValue, Json}
-import play.api.mvc.{Action, Controller}
+import play.api.libs.json.{ JsError, JsValue, Json }
+import play.api.mvc.{ Action, Controller }
 import service.UserService
 import utils.auth.DefaultEnv
 
@@ -21,7 +21,7 @@ import scala.concurrent.Future
   * Sign in using login/password credentials (no 3d party social login).
   */
 class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
-    messagesApi: MessagesApi,
+    translate: MessagesApi,
     userService: UserService,
     credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
 
@@ -35,7 +35,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
           case Some(user) ⇒
 
             user.state match {
-              case User.State.Activated =>
+              case User.State.Activated ⇒
                 for {
                   authenticator ← silhouette.env.authenticatorService.create(loginInfo)
                   value ← silhouette.env.authenticatorService.init(authenticator)
@@ -46,13 +46,12 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
                   authResult ← silhouette.env.authenticatorService.embed(value, response)
                 } yield authResult
 
-              case User.State.Created =>
-                Future.successful(BadRequest(Json.toJson(Bad(message = "signin.state.not.activated"))))
+              case User.State.Created ⇒
+                Future.successful(BadRequest(Json.toJson(Bad(message = translate("signin.state.not.activated")))))
 
-              case User.State.Deactivated =>
-                Future.successful(BadRequest(Json.toJson(Bad(message = "signin.state.not.activated"))))
+              case User.State.Deactivated ⇒
+                Future.successful(BadRequest(Json.toJson(Bad(message = translate("signin.state.not.activated")))))
             }
-
 
           case None ⇒ Future.failed(new Exception("todo: coundnt find user"))
         }
