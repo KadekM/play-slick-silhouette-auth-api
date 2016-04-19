@@ -7,6 +7,6 @@ POST          /signin/credentials              controllers.SignInCredentialsCont
 # GET         /signout                         controllers.ApplicationController.signOut
 
 #POST        /signup/reset                    controllers.SignUpController.resetPasswordRequest
-POST        /signup                          controllers.SignUpController.signUpRequestRegistration
-GET         /token/:token                   controllers.TokenController.execute(token)
+POST        /signup                           controllers.SignUpController.signUpRequestRegistration
+GET         /token/:token                     controllers.TokenController.execute(token)
 
