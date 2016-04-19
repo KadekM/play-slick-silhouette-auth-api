@@ -58,6 +58,4 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
       }
     }.recoverTotal(badRequestWithMessage)
   }
-
-
 }

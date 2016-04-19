@@ -20,9 +20,10 @@ class VerifyController @Inject()(silhouette: Silhouette[DefaultEnv]) extends Con
 
   def verify: Action[AnyContent] = Action.async { implicit request =>
     silhouette.SecuredRequestHandler { x =>
-      Future.successful(HandlerResult(Ok("All's good"), Some("Additional data")))
+      Future.successful(HandlerResult(Ok("All's good"), Some(x.identity.email)))
     }.map {
-      case HandlerResult(r, Some(data)) => Ok(data)
+      case HandlerResult(r, Some(data)) =>
+        Ok(data)
       case HandlerResult(r, None) => Forbidden
     }
   }
