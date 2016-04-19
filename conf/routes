@@ -10,3 +10,5 @@ POST          /signin/credentials              controllers.SignInCredentialsCont
 POST        /signup                           controllers.SignUpController.signUpRequestRegistration
 GET         /token/:token                     controllers.TokenController.execute(token)
 
+GET         /verify                           controllers.VerifyController.verify
+
