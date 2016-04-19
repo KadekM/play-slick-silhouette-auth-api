@@ -4,37 +4,38 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import com.google.inject.Inject
-import model.core.RegistrationToken
-import service.{Hasher, RegistrationTokenService}
+import model.core.UserToken
+import model.core.UserToken.UserTokenAction
+import service.{Hasher, UserTokenService}
 
 import scala.concurrent.Future
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 // TODO: dao-s - should not access directly db
-class RegistrationTokenServiceImpl extends RegistrationTokenService {
-  override def issue(userUuid: String): Future[RegistrationToken] = ???
+class UserTokenServiceImpl extends UserTokenService {
+  override def issue(userUuid: String, action: UserTokenAction): Future[UserToken] = ???
 
-  override def claim(token: String): Future[Option[RegistrationToken]] = ???
+  override def claim(token: String): Future[Option[UserToken]] = ???
 }
 
 /**
   * Not thread safe. Usage in production is discouraged (as it needs to be singleton).
   */
-class InMemoryRegistrationTokenServiceImpl @Inject() (hasher: Hasher) extends RegistrationTokenService {
+class InMemoryUserTokenServiceImpl @Inject()(hasher: Hasher) extends UserTokenService {
 
-  val tokens: ArrayBuffer[RegistrationToken] = ArrayBuffer.empty[RegistrationToken]
+  val tokens: ArrayBuffer[UserToken] = ArrayBuffer.empty[UserToken]
 
-  override def issue(userUuid: String): Future[RegistrationToken] = {
+  override def issue(userUuid: String, action: UserTokenAction): Future[UserToken] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
 
     // TODO: expiration days to config
-    val t = RegistrationToken(tokenHash, userUuid, LocalDateTime.now.plusDays(1))
+    val t = UserToken(tokenHash, userUuid, LocalDateTime.now.plusDays(1), action)
     tokens += t
     Future.successful(t)
   }
 
-  override def claim(token: String): Future[Option[RegistrationToken]] = {
+  override def claim(token: String): Future[Option[UserToken]] = {
     val t = tokens.find(x => x.token == token)
     Future.successful(t)
   }

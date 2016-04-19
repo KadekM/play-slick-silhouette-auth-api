@@ -5,14 +5,15 @@ import java.util.UUID
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.PasswordHasher
-import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
+import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import model.core.User
-import model.exchange.{ Bad, Good, SignUp }
+import model.core.UserToken.TokenAction
+import model.exchange.{Bad, Good, SignUp}
 import play.api.i18n.MessagesApi
-import play.api.libs.json.{ JsError, JsString, JsValue, Json }
-import play.api.mvc.{ Action, AnyContent, Controller }
-import service.{ RegistrationTokenService, UserService }
+import play.api.libs.json.{JsError, JsString, JsValue, Json}
+import play.api.mvc.{Action, AnyContent, Controller}
+import service.{UserService, UserTokenService}
 import utils.auth.DefaultEnv
 
 import scala.concurrent.Future
@@ -21,11 +22,11 @@ import scala.concurrent.Future
   * Sign up user to the system
   */
 class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
-    passwordHasher: PasswordHasher,
-    messagesApi: MessagesApi,
-    userService: UserService,
-    regTokenService: RegistrationTokenService,
-    authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
+                                  passwordHasher: PasswordHasher,
+                                  messagesApi: MessagesApi,
+                                  userService: UserService,
+                                  regTokenService: UserTokenService,
+                                  authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
 
   import model.exchange.format.rest._
   import play.api.libs.concurrent.Execution.Implicits._
@@ -49,7 +50,7 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
           for {
             user ← userService.save(user)
             authInfo ← authInfoRepository.add(loginInfo, authInfo)
-            registrationToken ← regTokenService.issue(user.uuid)
+            registrationToken ← regTokenService.issue(user.uuid, TokenAction.ActivateAccount)
           } yield {
             // TODO: remove token from here, do not return it, so users have to visit email
             Ok(Json.toJson(Good(registrationToken.token)))

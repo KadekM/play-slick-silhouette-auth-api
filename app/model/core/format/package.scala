@@ -5,6 +5,6 @@ import play.api.libs.json.Format
 
 package object format {
   object rest {
-    implicit val registrationTokenFormat: Format[RegistrationToken] = RegistrationTokenFormats.rest
+    implicit val userTokenFormat: Format[UserToken] = UserTokenFormats.rest
   }
 }
