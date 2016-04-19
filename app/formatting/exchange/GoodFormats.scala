@@ -1,8 +1,8 @@
-package model.exchange.format
+package formatting.exchange
 
 import model.exchange.Good
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 object GoodFormats {
   implicit val restFormat: Format[Good] = {

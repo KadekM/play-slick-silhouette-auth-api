@@ -25,7 +25,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
     userService: UserService,
     credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
 
-  import model.exchange.format.rest._
+  import formatting.exchange.rest._
   import play.api.libs.concurrent.Execution.Implicits._
 
   def signIn: Action[JsValue] = Action.async(parse.json) { implicit request ⇒

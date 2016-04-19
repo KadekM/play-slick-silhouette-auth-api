@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import model.core.UserToken.UserTokenAction
 
 /**
-  * Represents token to confirm user registration
+  * Represents token with actions
   */
 final case class UserToken(token: String, userUuid: String, expiresOn: LocalDateTime, tokenAction: UserTokenAction)
 

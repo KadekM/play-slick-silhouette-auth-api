@@ -14,7 +14,7 @@ class TokenController @Inject() (userService: UserService,
     userTokenService: UserTokenService,
     translate: MessagesApi) extends Controller {
 
-  import model.exchange.format.rest._
+  import formatting.exchange.rest._
   import play.api.libs.concurrent.Execution.Implicits._
 
   /**

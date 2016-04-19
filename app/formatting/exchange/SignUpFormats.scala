@@ -1,4 +1,4 @@
-package model.exchange.format
+package formatting.exchange
 
 import model.exchange.SignUp
 import play.api.libs.json.Json

@@ -18,7 +18,7 @@ final case class User(uuid: String,
 //todo: active == enumeration
 
 object User {
-  def default: User = User(UUID.randomUUID.toString, LoginInfo("",""), "", "", "", state = Created)
+  def empty: User = User(UUID.randomUUID.toString, LoginInfo("", ""), "", "", "", state = Created)
 
   sealed trait UserState
   object State {

@@ -1,10 +1,10 @@
-package model.exchange
+package formatting
 
 import com.mohiva.play.silhouette.api.util.Credentials
-import model.exchange.format.TokenFormats
+import model.exchange._
 import play.api.libs.json.{Format, OFormat}
 
-package object format {
+package object exchange {
   object rest {
     implicit val badFormat: Format[Bad] = BadFormats.restFormat
     implicit val goodFormat: Format[Good] = GoodFormats.restFormat

@@ -11,7 +11,7 @@ import service.{ Hasher, UserTokenService }
 import scala.concurrent.Future
 import scala.collection.mutable.ArrayBuffer
 
-// TODO: dao-s - should not access directly db
+// TODO: persistence.mapping.dao-s - should not access directly db
 class UserTokenServiceImpl extends UserTokenService {
   override def issue(userUuid: String, action: UserTokenAction): Future[UserToken] = ???
 

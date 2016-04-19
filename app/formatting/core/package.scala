@@ -1,9 +1,9 @@
-package model.core
+package formatting
 
-import model.exchange.format.TokenFormats
+import model.core._
 import play.api.libs.json.Format
 
-package object format {
+package object core {
   object rest {
     implicit val userTokenFormat: Format[UserToken] = UserTokenFormats.rest
   }

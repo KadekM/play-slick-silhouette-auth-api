@@ -1,12 +1,12 @@
-package model.core.format
+package formatting.core
 
 import java.time.LocalDateTime
 
 import model.core.UserToken
-import model.core.UserToken.TokenAction.{ ActivateAccount, ResetPassword }
-import model.core.UserToken.{ TokenAction, UserTokenAction }
-import play.api.libs.json._
+import model.core.UserToken.TokenAction.{ActivateAccount, ResetPassword}
+import model.core.UserToken.UserTokenAction
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 object UserTokenFormats {
 

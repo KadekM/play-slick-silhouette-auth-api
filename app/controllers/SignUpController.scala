@@ -18,7 +18,7 @@ import utils.auth.DefaultEnv
 
 import scala.concurrent.Future
 
-/**
+/**repository
   * Sign up user to the system
   */
 class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
@@ -28,7 +28,7 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
                                   userTokenService: UserTokenService,
                                   authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
 
-  import model.exchange.format.rest._
+  import formatting.exchange.rest._
   import play.api.libs.concurrent.Execution.Implicits._
 
   /**
@@ -58,6 +58,4 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
       }
     }.recoverTotal(badRequestWithMessage)
   }
-
-
 }

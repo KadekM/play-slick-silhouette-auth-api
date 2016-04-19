@@ -1,9 +1,8 @@
-package model.exchange.format
+package formatting.exchange
 
 import model.exchange.Bad
-import play.api.libs.json.{Format, JsValue, Reads, Writes}
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json.{Format, JsValue, Reads, Writes, _}
 
 object BadFormats {
   val restFormat = {
