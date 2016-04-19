@@ -1,5 +1,7 @@
 package controllers
 
+import java.time.LocalDateTime
+
 import com.google.inject.Inject
 import model.core.{User, UserToken}
 import model.exchange.{Bad, Good}
@@ -20,13 +22,20 @@ class TokenController @Inject() (userService: UserService,
     */
   def execute(token: String) = Action.async { implicit request ⇒
     userTokenService.claim(token).map {
-      case Some(claimedToken@UserToken(_, _, _, UserToken.TokenAction.ActivateAccount)) ⇒
-        activateAccount(claimedToken)
-      case Some(claimedToken@UserToken(_, _, _, UserToken.TokenAction.ResetPassword)) =>
-        resetPassword(claimedToken)
+      case Some(claimedToken) =>
+        if (!isTokenExpired(claimedToken)) {
+          claimedToken.tokenAction match {
+            case UserToken.TokenAction.ActivateAccount =>
+              activateAccount(claimedToken)
+            case UserToken.TokenAction.ResetPassword =>
+              resetPassword(claimedToken)
+          }
+        } else NotFound(Json.toJson(Bad(message = "token.invalid")))
       case None               ⇒ NotFound(Json.toJson(Bad(message = "token.invalid")))
     }
   }
+
+  private def isTokenExpired(token: UserToken): Boolean = token.expiresOn.isBefore(LocalDateTime.now)
 
   private def activateAccount(token: UserToken): Result = {
     userService.setState(token.userUuid, User.State.Activated)
