@@ -11,8 +11,8 @@ import model.core.User
 import model.exchange.{ Bad, Good, SignUp }
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{ JsError, JsString, JsValue, Json }
-import play.api.mvc.{ Action, Controller }
-import service.UserService
+import play.api.mvc.{ Action, AnyContent, Controller }
+import service.{ RegistrationTokenService, UserService }
 import utils.auth.DefaultEnv
 
 import scala.concurrent.Future
@@ -24,11 +24,15 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
     passwordHasher: PasswordHasher,
     messagesApi: MessagesApi,
     userService: UserService,
+    regTokenService: RegistrationTokenService,
     authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
 
   import model.exchange.format.rest._
   import play.api.libs.concurrent.Execution.Implicits._
 
+  /**
+    * Registers users in service and issues token in backend
+    */
   def signUpRequestRegistration: Action[JsValue] = Action.async(parse.json) { implicit request ⇒
     request.body.validate[SignUp].map { signUp ⇒
       val loginInfo = LoginInfo(CredentialsProvider.ID, signUp.identifier)
@@ -45,10 +49,25 @@ class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
           for {
             user ← userService.save(user)
             authInfo ← authInfoRepository.add(loginInfo, authInfo)
+            registrationToken ← regTokenService.issue(user.uuid)
           } yield {
-            Ok(Json.toJson(Good(user.uuid.toString))) // todo: token
+            // TODO: remove token from here, do not return it, so users have to visit email
+            Ok(Json.toJson(Good(registrationToken.token)))
           }
       }
     }.recoverTotal(badRequestWithMessage)
+  }
+
+  // TODO prehaps token controller with email/auth etc?
+  /**
+    * Tries to validate token and activate user
+    */
+  def signUpCompletion(token: String) = Action.async { implicit request ⇒
+    regTokenService.claim(token).map {
+      case Some(claimedToken) ⇒
+        userService.setState(claimedToken.userUuid, User.State.Activated)
+        Ok(Json.toJson(Good("token.ok")))
+      case None               ⇒ NotFound(Json.toJson(Bad(message = "token.invalid")))
+    }
   }
 }

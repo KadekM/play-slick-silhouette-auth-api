@@ -1,8 +1,17 @@
+user.exists = There already exists a user with this email
+
+token.ok = Token validated
+token.invalid = Token is invalid
+
+signin.state.not.activated = User is not activated
+
+
+####
+
 error.email = Valid email required
 error.required = This field is required
 invalid.credentials = Invalid credentials!
 access.denied = Access denied!
-user.exists = There already exists a user with this email!
 could.not.authenticate = Could not authenticate with social provider! Please try again!
 
 home.title = Silhouette - Home

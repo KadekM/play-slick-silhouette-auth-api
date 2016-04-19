@@ -14,7 +14,6 @@ import scala.concurrent.Future
 /**
   * Handles actions to users
   */
-
 trait UserService extends IdentityService[User] {
   /**
    * Saves a user.
@@ -33,4 +32,10 @@ trait UserService extends IdentityService[User] {
    * @return The user for whom the profile was saved.
    */
   def save(profile: CommonSocialProfile): Future[User]
+
+  /**
+    * Sets new state to user with `userUuid`
+    * @return true if new state was set successfuly, otherwise false
+    */
+  def setState(userUuid: String, newState: User.UserState): Future[Boolean]
 }

@@ -15,7 +15,7 @@ import scala.collection.mutable.ArrayBuffer
 class RegistrationTokenServiceImpl extends RegistrationTokenService {
   override def issue(userUuid: String): Future[RegistrationToken] = ???
 
-  override def claim(token: String, userUuid: String): Future[Option[RegistrationToken]] = ???
+  override def claim(token: String): Future[Option[RegistrationToken]] = ???
 }
 
 /**
@@ -34,8 +34,8 @@ class InMemoryRegistrationTokenServiceImpl @Inject() (hasher: Hasher) extends Re
     Future.successful(t)
   }
 
-  override def claim(token: String, userUuid: String): Future[Option[RegistrationToken]] = {
-    val t = tokens.find(x => x.token == token && x.userUuid == userUuid)
+  override def claim(token: String): Future[Option[RegistrationToken]] = {
+    val t = tokens.find(x => x.token == token)
     Future.successful(t)
   }
 }

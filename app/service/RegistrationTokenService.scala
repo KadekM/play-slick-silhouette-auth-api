@@ -19,7 +19,7 @@ trait RegistrationTokenService {
     * @param token to search for
     * @return claimed token
     */
-  def claim(token: String, userUuid: String): Future[Option[RegistrationToken]]
+  def claim(token: String): Future[Option[RegistrationToken]]
 }
 
 

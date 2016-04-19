@@ -6,6 +6,8 @@ import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import model.core.User
+import model.core.User.State.{Activated, Deactivated}
 import model.exchange.{Bad, Token}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsError, JsValue, Json}
@@ -31,15 +33,26 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
       credentialsProvider.authenticate(credentials).flatMap { loginInfo ⇒
         userService.retrieve(loginInfo).flatMap {
           case Some(user) ⇒
-            for {
-              authenticator ← silhouette.env.authenticatorService.create(loginInfo)
-              value ← silhouette.env.authenticatorService.init(authenticator)
 
-              expiration = utils.date.Conversions.jodaToJava(authenticator.expirationDateTime)
+            user.state match {
+              case User.State.Activated =>
+                for {
+                  authenticator ← silhouette.env.authenticatorService.create(loginInfo)
+                  value ← silhouette.env.authenticatorService.init(authenticator)
 
-              response = Ok(Json.toJson(Token(token = value, expiresOn = expiration)))
-              authResult ← silhouette.env.authenticatorService.embed(value, response)
-            } yield authResult
+                  expiration = utils.date.Conversions.jodaToJava(authenticator.expirationDateTime)
+
+                  response = Ok(Json.toJson(Token(token = value, expiresOn = expiration)))
+                  authResult ← silhouette.env.authenticatorService.embed(value, response)
+                } yield authResult
+
+              case User.State.Created =>
+                Future.successful(BadRequest(Json.toJson(Bad(message = "signin.state.not.activated"))))
+
+              case User.State.Deactivated =>
+                Future.successful(BadRequest(Json.toJson(Bad(message = "signin.state.not.activated"))))
+            }
+
 
           case None ⇒ Future.failed(new Exception("todo: coundnt find user"))
         }
