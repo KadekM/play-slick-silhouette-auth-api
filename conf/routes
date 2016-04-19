@@ -6,16 +6,7 @@ POST          /signin/credentials              controllers.SignInCredentialsCont
 #POST         /signin/:provider                controllers.SignInSocialController.signIn
 # GET         /signout                         controllers.ApplicationController.signOut
 
+#POST        /signup/reset                    controllers.SignUpController.resetPasswordRequest
 POST        /signup                          controllers.SignUpController.signUpRequestRegistration
 GET         /token/:token                   controllers.TokenController.execute(token)
 
-
-# GET         /verify
-
-# GET         /reset                           controllers.PasswordChangeController.startResetPassword
-# POST        /reset                           controllers.PasswordChangeController.handleStartResetPassword
-# GET         /reset/:token                    controllers.PasswordChangeController.specifyResetPassword(token)
-# POST        /reset/                          controllers.PasswordChangeController.handleResetPassword
-
-# GET         /change                          controllers.PasswordChangeController.startChangePassword
-# POST        /change                          controllers.PasswordChangeController.handleChangePassword
