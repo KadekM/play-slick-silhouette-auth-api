@@ -3,15 +3,15 @@ package controllers
 import java.time.LocalDateTime
 
 import com.google.inject.Inject
-import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import model.core.User
-import model.core.User.State.{ Activated, Deactivated }
-import model.exchange.{ Bad, Token }
+import model.core.User.State.{Activated, Deactivated}
+import model.exchange.{Bad, Token}
 import play.api.i18n.MessagesApi
-import play.api.libs.json.{ JsError, JsValue, Json }
-import play.api.mvc.{ Action, Controller }
+import play.api.libs.json.{JsError, JsValue, Json}
+import play.api.mvc.{Action, Controller, Request}
 import service.UserService
 import utils.auth.DefaultEnv
 
@@ -36,15 +36,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
 
             user.state match {
               case User.State.Activated ⇒
-                for {
-                  authenticator ← silhouette.env.authenticatorService.create(loginInfo)
-                  value ← silhouette.env.authenticatorService.init(authenticator)
-
-                  expiration = utils.date.Conversions.jodaToJava(authenticator.expirationDateTime)
-
-                  response = Ok(Json.toJson(Token(token = value, expiresOn = expiration)))
-                  authResult ← silhouette.env.authenticatorService.embed(value, response)
-                } yield authResult
+                runSignIn(loginInfo)
 
               case User.State.Created ⇒
                 Future.successful(BadRequest(Json.toJson(Bad(message = translate("signin.state.not.activated")))))
@@ -53,9 +45,23 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
                 Future.successful(BadRequest(Json.toJson(Bad(message = translate("signin.state.not.activated")))))
             }
 
-          case None ⇒ Future.failed(new Exception("todo: coundnt find user"))
+          case None ⇒ Future.failed(new Exception("todo: couldn't find user"))
         }
       }
     }.recoverTotal(badRequestWithMessage)
   }
+
+  /**
+    * Returns Token response with encoded auth data
+    */
+  private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]) =
+    for {
+      authenticator ← silhouette.env.authenticatorService.create(loginInfo)
+      value ← silhouette.env.authenticatorService.init(authenticator)
+
+      expiration = utils.date.Conversions.jodaToJava(authenticator.expirationDateTime)
+
+      response = Ok(Json.toJson(Token(token = value, expiresOn = expiration)))
+      authResult ← silhouette.env.authenticatorService.embed(value, response)
+    } yield authResult
 }

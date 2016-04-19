@@ -9,7 +9,6 @@ import model.core.UserToken.UserTokenAction
 import service.{ Hasher, UserTokenService }
 
 import scala.concurrent.Future
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 // TODO: dao-s - should not access directly db
