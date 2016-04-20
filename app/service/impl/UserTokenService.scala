@@ -27,6 +27,7 @@ class InMemoryUserTokenServiceImpl @Inject() (hasher: Hasher) extends UserTokenS
 
   override def issue(userUuid: String, action: UserTokenAction): Future[UserToken] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
+    println("issuing", userUuid, tokenHash)
 
     // TODO: expiration days to config
     val t = UserToken(tokenHash, userUuid, LocalDateTime.now.plusDays(1), action)
@@ -35,6 +36,8 @@ class InMemoryUserTokenServiceImpl @Inject() (hasher: Hasher) extends UserTokenS
   }
 
   override def claim(token: String): Future[Option[UserToken]] = {
+    println(token)
+    println(tokens.mkString(","))
     val t = tokens.find(x ⇒ x.token == token)
     t.map(found ⇒ tokens -= found)
     Future.successful(t)
