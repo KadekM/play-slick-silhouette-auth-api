@@ -16,10 +16,6 @@ object LoginInfoTable {
     query.filter(db => db.providerId === loginInfo.providerID && db.providerKey === loginInfo.providerKey)
 }
 
-object UserToLoginInfoTable {
-  lazy val query = TableQuery[UserToLoginInfoMapping]
-}
-
 object PasswordInfoTable {
   lazy val query = TableQuery[PasswordInfoMapping]
 }

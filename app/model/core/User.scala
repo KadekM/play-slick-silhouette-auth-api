@@ -7,7 +7,6 @@ import model.core.User.State.Created
 import model.core.User.UserState
 
 final case class User(uuid: String,
-                      loginInfo: LoginInfo,
                       email: String,
                       firstName: String,
                       lastName: String,
@@ -18,7 +17,7 @@ final case class User(uuid: String,
 //todo: active == enumeration
 
 object User {
-  def empty: User = User(UUID.randomUUID.toString, LoginInfo("", ""), "", "", "", state = Created)
+  def empty: User = User(UUID.randomUUID.toString, "", "", "", state = Created)
 
   sealed trait UserState
   object State {

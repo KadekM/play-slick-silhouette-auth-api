@@ -3,6 +3,7 @@ package controllers
 import java.time.LocalDateTime
 
 import com.google.inject.Inject
+import com.mohiva.play.silhouette.api.services.AuthenticatorResult
 import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
@@ -31,6 +32,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
   def signIn: Action[JsValue] = Action.async(parse.json) { implicit request ⇒
     request.body.validate[Credentials].map { credentials ⇒
       credentialsProvider.authenticate(credentials).flatMap { loginInfo ⇒
+
         userService.retrieve(loginInfo).flatMap {
           case Some(user) ⇒
 
@@ -54,7 +56,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
   /**
     * Returns Token response with encoded auth data
     */
-  private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]) =
+  private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]): Future[AuthenticatorResult] =
     for {
       authenticator ← silhouette.env.authenticatorService.create(loginInfo)
       value ← silhouette.env.authenticatorService.init(authenticator)

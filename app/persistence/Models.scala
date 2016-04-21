@@ -2,9 +2,7 @@ package persistence
 
 import model.core.User.UserState
 
-final case class DbLoginInfo(id: Long, providerId: String, providerKey: String)
-
-final case class UserToLoginInfo(userUuid: String, loginInfoId: Long)
+final case class DbLoginInfo(id: Long, userUuid: String, providerId: String, providerKey: String)
 
 final case class DbPasswordInfo(loginInfoId: Long,
   hasher: String,

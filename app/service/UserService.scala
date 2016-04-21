@@ -38,4 +38,6 @@ trait UserService extends IdentityService[User] {
     * @return true if new state was set successfuly, otherwise false
     */
   def setState(userUuid: String, newState: User.UserState): Future[Boolean]
+
+  def retrieve(userUuid: String): Future[Option[User]]
 }

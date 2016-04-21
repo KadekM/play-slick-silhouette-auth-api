@@ -4,8 +4,8 @@ import com.google.inject.{AbstractModule, Inject, Provides}
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import net.codingwell.scalaguice.ScalaModule
-import persistence.dao.{PasswordInfoDao, UserDao}
-import persistence.dao.impl.{PasswordInfoDaoImpl, UserDaoImpl}
+import persistence.dao.{LoginInfoDao, PasswordInfoDao, UserDao}
+import persistence.dao.impl.{LoginInfoDaoImpl, PasswordInfoDaoImpl, UserDaoImpl}
 import persistence.drivers.AuthPostgresDriver
 import play.api.db.slick.DatabaseConfigProvider
 import service.impl._
@@ -19,6 +19,7 @@ import scala.concurrent.duration._
 sealed class PersistenceModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[UserDao].to[UserDaoImpl]
+    bind[LoginInfoDao].to[LoginInfoDaoImpl]
     bind[PasswordInfoDao].to[PasswordInfoDaoImpl]
     bind[InitInMemoryDb].asEagerSingleton // only for in memory db, create tables at start
 
@@ -44,7 +45,6 @@ class InitInMemoryDb @Inject() (dbConfig: DatabaseConfig[JdbcProfile]) {
   private val f: DBIOAction[Unit, NoStream, Schema] = for {
     _ ← UserTable.query.schema.create
     _ ← LoginInfoTable.query.schema.create
-    _ ← UserToLoginInfoTable.query.schema.create
     _ ← PasswordInfoTable.query.schema.create
   } yield ()
 

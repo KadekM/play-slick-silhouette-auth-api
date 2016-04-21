@@ -19,60 +19,38 @@ class UserDaoImpl @Inject() (dbConfig: DatabaseConfig[AuthPostgresDriver]) exten
   import dbConfig.driver.api._
   import dbConfig.driver._
 
+
   override def find(loginInfo: LoginInfo): Future[Option[User]] = {
     val userQuery = for {
-      dbLoginInfo ← LoginInfoTable.findDbLoginInfo(loginInfo)
-      dbUserLoginInfo ← UserToLoginInfoTable.query.filter(_.loginInfoId === dbLoginInfo.id)
-      dbUser ← UserTable.query.filter(_.uuid === dbUserLoginInfo.userUuid)
-    } yield dbUser
+    (loginInfo, user) ← LoginInfoTable.findDbLoginInfo(loginInfo)
+        .join(UserTable.query).on(_.userUuid === _.uuid)
+    } yield user
 
     dbConfig.db.run(userQuery.result.headOption).map { dbUserOption ⇒
       dbUserOption.map { user ⇒
-        User(user.uuid, loginInfo, user.email, user.firstName, user.lastName, user.state)
+        User(user.uuid, user.email, user.firstName, user.lastName, user.state)
       }
     }
   }
 
-  override def save(user: User): Future[User] = {
-    val dbUser = DbUser(user.uuid, user.email, user.firstName, user.lastName, user.state)
-    val dbLoginInfo = DbLoginInfo(-1, user.loginInfo.providerID, user.loginInfo.providerKey)
-
-    val loginInfoAction = {
-      val retrieveLoginInfo = LoginInfoTable.query.filter(
-        info ⇒ info.providerId === user.loginInfo.providerID &&
-          info.providerKey === user.loginInfo.providerKey).result.headOption
-
-      val insertLoginInfo = LoginInfoTable.query
-        .returning(LoginInfoTable.query.map(_.id))
-        .into((info, id) ⇒ info.copy(id = id)) += dbLoginInfo
-
-      for {
-        loginInfoOpt ← retrieveLoginInfo
-        loginInfo ← loginInfoOpt.map(DBIO.successful).getOrElse(insertLoginInfo)
-      } yield loginInfo
-    }
-
-    val actions = for {
-      _ ← UserTable.query.insertOrUpdate(dbUser)
-      loginInfo ← loginInfoAction
-      _ ← UserToLoginInfoTable.query += UserToLoginInfo(dbUser.uuid, loginInfo.id)
-    } yield ()
-
-    dbConfig.db.run(actions.transactionally).map(_ ⇒ user)
+  override def find(userUuid: String): Future[Option[User]] = {
+    val query = UserTable.query.filter(_.uuid === userUuid)
+    dbConfig.db.run(query.result.headOption)
+      .map { opt =>
+        opt.map { u =>
+          User(u.uuid, u.email, u.firstName, u.lastName, u.state)
+        }
+      }
   }
 
-  override def find(userUuid: String): Future[Option[User]] = {
-    val query = for {
-      dbUser ← UserTable.query.filter(_.uuid === userUuid)
-      dbUserLoginInfo ← UserToLoginInfoTable.query.filter(_.userUuid === dbUser.uuid)
-      dbLoginInfo ← LoginInfoTable.query.filter(_.id === dbUserLoginInfo.loginInfoId)
-    } yield (dbUser, dbLoginInfo)
+  override def save(user: User): Future[User] = {
+    val dbUser = DbUser(user.uuid, user.email, user.firstName, user.lastName, user.state)
 
-    dbConfig.db.run(query.result.headOption).map(resultOpt ⇒
-      resultOpt.map {
-        case (user, loginInfo) ⇒ User(user.uuid, LoginInfo(loginInfo.providerId, loginInfo.providerKey),
-          user.email, user.firstName, user.lastName, user.state)
-      })
+    val act = for {
+      _ ← UserTable.query.insertOrUpdate(dbUser)
+    } yield ()
+
+    dbConfig.db.run(act).map(_ ⇒ user)
   }
 
   override def setState(userUuid: String, newState: UserState): Future[Boolean] = {
