@@ -1,1 +1,1 @@
-curl -X POST http://localhost:9000/signin/credentials -H 'Content-Type: application/json' -d '{"identifier": "marek12312321@foo.bar", "password": "123123123!"}' -v
+curl -X POST http://auth.fofobar.com:9000/signin/credentials -H 'Content-Type: application/json' -d '{"identifier": "marek12312321@foo.bar", "password": "123123123!"}' -v
