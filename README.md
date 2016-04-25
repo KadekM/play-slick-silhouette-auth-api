@@ -12,3 +12,7 @@ set up your etc/hosts:
 - introduces auth db under @NamedDatabase("auth")
 
 - need to enable modules from auth that you want to use
+
+- document permissions
+
+- document difference between daos etc

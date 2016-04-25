@@ -1,7 +1,7 @@
 package controllers
 
 import auth.DefaultEnv
-import auth.model.core.{Admin, WithPermission}
+import auth.model.core.{AccessAdmin, WithPermission}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
 import play.api.mvc.{Action, AnyContent, Controller}
@@ -25,7 +25,7 @@ class VerifyExtController @Inject()(silhouette: Silhouette[DefaultEnv]) extends 
     }
   }
 
-  def verifyAdmin = silhouette.SecuredAction(WithPermission(Admin)).async { implicit req =>
+  def verifyAdmin = silhouette.SecuredAction(WithPermission(AccessAdmin)).async { implicit req =>
     Future.successful { Ok("a") }
   }
 }
