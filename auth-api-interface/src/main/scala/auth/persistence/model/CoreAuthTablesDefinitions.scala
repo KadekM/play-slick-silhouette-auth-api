@@ -1,11 +1,12 @@
 package auth.persistence.model
 
-import auth.model.core.User
+import auth.model.core.{Permission, User}
 import auth.model.core.User.UserState
-import auth.persistence.HasAuthDbProfile
+import auth.persistence.{HasAuthDbProfile, SilhouetteLoginInfo}
 import com.mohiva.play.silhouette
 import slick.lifted.ProvenShape
 
+// TODO: nicer table names && check structure
 trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbProfile {
   import driver.api._
 
@@ -20,6 +21,8 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
       (uuid, email, firstName, lastName, state) <> ((User.apply _).tupled, User.unapply)
   }
 
+  val usersQuery = TableQuery[UserMapping]
+
   sealed class LoginInfoMapping(tag: Tag) extends Table[LoginInfo](tag, "logininfo") {
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def userUuid: Rep[String] = column[String]("user_uuid")
@@ -30,6 +33,12 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
 
     def * = (id, userUuid, providerId, providerKey) <> ((LoginInfo.apply _).tupled, LoginInfo.unapply)
   }
+
+  val loginInfosQuery = TableQuery[LoginInfoMapping]
+
+  // TODO: remove
+  def findDbLoginInfo(loginInfo: SilhouetteLoginInfo): Query[LoginInfoMapping, LoginInfo, Seq] =
+    loginInfosQuery.filter(db ⇒ db.providerId === loginInfo.providerID && db.providerKey === loginInfo.providerKey)
 
   sealed class PasswordInfoMapping(tag: Tag) extends Table[PasswordInfo](tag, "passwordinfo") {
     def hasher = column[String]("hasher")
@@ -42,12 +51,24 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
     def * = (loginInfoId, hasher, password, salt) <> (PasswordInfo.tupled, PasswordInfo.unapply)
   }
 
-  val usersQuery = TableQuery[UserMapping]
-
-  val loginInfosQuery = TableQuery[LoginInfoMapping]
-
-  def findDbLoginInfo(loginInfo: silhouette.api.LoginInfo): Query[LoginInfoMapping, LoginInfo, Seq] =
-    loginInfosQuery.filter(db ⇒ db.providerId === loginInfo.providerID && db.providerKey === loginInfo.providerKey)
-
   val passwordInfosQuery = TableQuery[PasswordInfoMapping]
+
+  sealed class PermissionMapping(tag: Tag) extends Table[Permission](tag, "permissions") {
+    def name = column[Permission]("name", O.PrimaryKey)
+
+    def * = name
+  }
+
+  val permissionsQuery = TableQuery[PermissionMapping]
+
+  sealed class PermissionToUserMapping(tag: Tag) extends Table[PermissionToModel](tag, "permissionstomodels") {
+    def permission = column[Permission]("permissions_name")
+    def userUuid = column[String]("users_uuid")
+
+    foreignKey("fk_permission", permission, permissionsQuery)(_.name)
+    foreignKey("fk_user_uuid", userUuid, usersQuery)(_.uuid)
+    def * = (permission, userUuid) <> (PermissionToModel.tupled, PermissionToModel.unapply)
+  }
+
+  val permissionsToUsersQuery = TableQuery[PermissionToUserMapping]
 }

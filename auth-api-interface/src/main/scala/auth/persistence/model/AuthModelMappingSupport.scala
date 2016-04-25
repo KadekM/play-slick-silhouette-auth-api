@@ -1,5 +1,6 @@
 package auth.persistence.model
 
+import auth.model.core._
 import auth.model.core.User.State._
 import auth.model.core.User._
 import auth.persistence.HasAuthDbProfile
@@ -16,5 +17,13 @@ trait AuthModelMappingSupport { self: HasAuthDbProfile =>
     case "created"     ⇒ Created
     case "activated"   ⇒ Activated
     case "deactivated" ⇒ Deactivated
+  })
+
+  implicit val permissionMapper: JdbcType[Permission] = MappedColumnType.base[Permission, String]({
+    case AccessAdmin => "access_admin"
+    case AccessSpringBar => "access_spring_bar"
+  }, {
+    case "access_admin" => AccessAdmin
+    case "access_spring_bar" => AccessSpringBar
   })
 }

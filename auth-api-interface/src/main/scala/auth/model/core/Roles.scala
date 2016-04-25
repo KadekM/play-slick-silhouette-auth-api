@@ -8,8 +8,8 @@ import scala.concurrent.Future
 
 sealed trait Permission
 
-case object Admin extends Permission
-case object SpringBarAccess extends Permission
+case object AccessAdmin extends Permission
+case object AccessSpringBar extends Permission
 
 
 case class WithPermission(required: Permission) extends Authorization[User, JWTAuthenticator] {
