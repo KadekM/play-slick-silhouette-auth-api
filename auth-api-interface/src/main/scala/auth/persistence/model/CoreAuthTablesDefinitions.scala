@@ -61,13 +61,13 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
 
   val permissionsQuery = TableQuery[PermissionMapping]
 
-  sealed class PermissionToUserMapping(tag: Tag) extends Table[PermissionToModel](tag, "permissionstomodels") {
+  sealed class PermissionToUserMapping(tag: Tag) extends Table[PermissionToUser](tag, "permissions_to_users") {
     def permission = column[Permission]("permissions_name")
     def userUuid = column[String]("users_uuid")
 
     foreignKey("fk_permission", permission, permissionsQuery)(_.name)
     foreignKey("fk_user_uuid", userUuid, usersQuery)(_.uuid)
-    def * = (permission, userUuid) <> (PermissionToModel.tupled, PermissionToModel.unapply)
+    def * = (permission, userUuid) <> (PermissionToUser.tupled, PermissionToUser.unapply)
   }
 
   val permissionsToUsersQuery = TableQuery[PermissionToUserMapping]

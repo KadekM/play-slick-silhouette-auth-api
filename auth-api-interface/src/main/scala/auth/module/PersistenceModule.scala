@@ -1,10 +1,11 @@
 package auth.module
 
+import auth.model.core.{AccessAdmin, AccessSpringBar}
 import auth.persistence._
-import auth.persistence.model.dao.impl.{ LoginInfoDaoImpl, PasswordInfoDaoImpl, UserDaoImpl }
-import auth.persistence.model.dao.{ LoginInfoDao, PasswordInfoDao, UserDao }
-import auth.persistence.model.{ AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions }
-import com.google.inject.{ AbstractModule, Inject, Provides }
+import auth.persistence.model.dao.impl.{LoginInfoDaoImpl, PasswordInfoDaoImpl, PermissionDaoImpl, UserDaoImpl}
+import auth.persistence.model.dao.{LoginInfoDao, PasswordInfoDao, PermissionDao, UserDao}
+import auth.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions}
+import com.google.inject.{AbstractModule, Inject, Provides}
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import net.codingwell.scalaguice.ScalaModule
 import play.api.db.slick.DatabaseConfigProvider
@@ -30,6 +31,7 @@ sealed class PersistenceModule extends AbstractModule with ScalaModule with Silh
     new AuthDatabaseConfigProvider {
       override def get[P <: BasicProfile]: DatabaseConfig[P] = dbConfigProvider.get
     }
+
 }
 
 class InitInMemoryDb @Inject() (protected val dbConfigProvider: AuthDatabaseConfigProvider)
@@ -46,9 +48,15 @@ class InitInMemoryDb @Inject() (protected val dbConfigProvider: AuthDatabaseConf
     _ ← permissionsQuery.schema.create
     _ ← permissionsToUsersQuery.schema.create
   } yield ()
+  println("Core tables created")
 
   Await.ready(db.run(f.transactionally), 10.seconds)
-  println("Core tables created")
+
+  // todo: Populate permissions
+  Await.ready(db.run(permissionsQuery += AccessAdmin), 10.seconds)
+  Await.ready(db.run(permissionsQuery += AccessSpringBar), 10.seconds)
+  println("Permissions populated")
+
 }
 
 /**
@@ -71,4 +79,7 @@ trait DaoProviders {
 
   @Provides def providePasswordInfoDao(db: AuthDatabaseConfigProvider): PasswordInfoDao =
     new PasswordInfoDaoImpl(db)
+
+  @Provides def providePermissionDao(db: AuthDatabaseConfigProvider): PermissionDao =
+    new PermissionDaoImpl(db)
 }
