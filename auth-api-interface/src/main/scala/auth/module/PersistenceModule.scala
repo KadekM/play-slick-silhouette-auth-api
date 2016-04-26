@@ -2,6 +2,8 @@ package auth.module
 
 import auth.model.core.{AccessAdmin, AccessSpringBar}
 import auth.persistence._
+import auth.persistence.model.authorization.PermissionsAuthorizer
+import auth.persistence.model.authorization.impl.DbPermissionsAuthorizerImpl
 import auth.persistence.model.dao.impl.{LoginInfoDaoImpl, PasswordInfoDaoImpl, PermissionDaoImpl, UserDaoImpl}
 import auth.persistence.model.dao.{LoginInfoDao, PasswordInfoDao, PermissionDao, UserDao}
 import auth.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions}
@@ -32,6 +34,9 @@ sealed class PersistenceModule extends AbstractModule with ScalaModule with Silh
       override def get[P <: BasicProfile]: DatabaseConfig[P] = dbConfigProvider.get
     }
 
+  @Provides
+  def providePermissionsAuthorizer(doa: PermissionDao): PermissionsAuthorizer =
+    new DbPermissionsAuthorizerImpl(doa)
 }
 
 class InitInMemoryDb @Inject() (protected val dbConfigProvider: AuthDatabaseConfigProvider)

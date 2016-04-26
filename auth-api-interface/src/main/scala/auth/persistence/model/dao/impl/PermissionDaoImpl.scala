@@ -32,4 +32,8 @@ class PermissionDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvid
 
     db.run(act.result.headOption)
   }
+
+  override def allPossible(): Future[Seq[Permission]] = db.run(permissionsQuery.result)
+
+  override def allAssigned(): Future[Seq[PermissionToUser]] = db.run(permissionsToUsersQuery.result)
 }
