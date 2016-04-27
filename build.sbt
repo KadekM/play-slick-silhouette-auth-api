@@ -22,6 +22,7 @@ lazy val authApiInterface = project.in(file("auth-api-interface"))
       //"com.typesafe.play" %% "play-mailer" % "2.5.2",
       "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
       "org.postgresql" % "postgresql" % "9.4.1208.jre7",
+      filters,
 
 
       "com.github.tminglei" %% "slick-pg" % "0.12.2",

@@ -15,10 +15,11 @@ GET         /verify                           controllers.VerifyController.verif
 # Users
 
 GET        /users                             controllers.UsersController.listAll
+POST       /users                             controllers.SignUpController.signUpRequestRegistration
 
 # Permissions
 
-PUT        /permissions                       controllers.PermissionsController.grant
+POST       /permissions                       controllers.PermissionsController.grant
 DELETE     /permissions                       controllers.PermissionsController.revoke
 GET        /permissions                       controllers.PermissionsController.listPossible
 GET        /permissions/assigned              controllers.PermissionsController.listAssigned
