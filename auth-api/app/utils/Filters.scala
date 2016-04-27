@@ -2,10 +2,21 @@ package utils
 
 import javax.inject.Inject
 
+import akka.stream.Materializer
 import play.api.http.HttpFilters
+import play.api.mvc._
 import play.filters.cors.CORSFilter
 import play.filters.headers.SecurityHeadersFilter
 
-class Filters @Inject() (corsFilter: CORSFilter, securityHeadersFilter: SecurityHeadersFilter) extends HttpFilters {
-  def filters = Seq(corsFilter)
+import scala.concurrent.Future
+
+class SetCookieFilter @Inject()(override implicit val mat: Materializer) extends Filter {
+  override def apply(f: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    f(rh)
+  }
+}
+
+class Filters @Inject() (corsFilter: CORSFilter, securityHeadersFilter: SecurityHeadersFilter, setCookieFilter: SetCookieFilter) extends HttpFilters {
+  def filters = Seq(corsFilter, setCookieFilter)
 }
