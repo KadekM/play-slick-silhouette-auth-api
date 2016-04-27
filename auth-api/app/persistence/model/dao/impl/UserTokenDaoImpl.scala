@@ -27,10 +27,17 @@ class UserTokenDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvide
     db.run(act).map(_ => token)
   }
 
-  override def claim(token: String): Future[Option[UserToken]] = {
+  override def find(token: String): Future[Option[UserToken]] = {
     val act = userTokensQuery
       .filter(_.token === token)
 
     db.run(act.result.headOption)
+  }
+
+  override def remove(token: String): Future[Boolean] = {
+    val act = userTokensQuery
+      .filter(_.token === token)
+
+    db.run(act.delete).map(deleted => deleted > 0)
   }
 }

@@ -1,0 +1,1 @@
+curl -v -X POST -H 'Content-Type: application/json' -d '{"password": "somestrongpassword123!"}' http://auth.fofobar.com:9000/tokens/$1

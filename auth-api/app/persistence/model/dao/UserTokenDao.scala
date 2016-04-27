@@ -8,5 +8,7 @@ import scala.concurrent.Future
 trait UserTokenDao {
   def issue(userUuid: String, action: UserTokenAction): Future[UserToken]
 
-  def claim(token: String): Future[Option[UserToken]]
+  def find(token: String): Future[Option[UserToken]]
+
+  def remove(token: String): Future[Boolean]
 }

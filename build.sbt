@@ -3,7 +3,8 @@ name := "play-slick-silhouette-auth-api"
 lazy val commonSettings = Seq(
   version := "1.0",
   scalaVersion := "2.11.8",
-  resolvers += "Atlassian Releases" at "https://maven.atlassian.com/public/"
+resolvers += "Atlassian Releases" at "https://maven.atlassian.com/public/",
+routesGenerator := InjectedRoutesGenerator
 )
 
 
@@ -34,14 +35,7 @@ lazy val authApiInterface = project.in(file("auth-api-interface"))
 
 lazy val authApi = project.in(file("auth-api"))
       .settings(commonSettings: _*)
-      .settings(
- libraryDependencies ++= Seq(
-
-
-)
-      ).enablePlugins(PlayScala).dependsOn(authApiInterface)
-
-
+      .enablePlugins(PlayScala).dependsOn(authApiInterface)
 
 lazy val client = (project in file("client"))
     .settings(commonSettings: _*)

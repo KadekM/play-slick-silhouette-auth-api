@@ -13,4 +13,6 @@ final case class Bad(status: String, details: Option[JsValue] = None)
 object Bad {
   def apply(status: String, simpleDetails: String): Bad = Bad(status, Some(JsString(simpleDetails)))
   def apply(status: String, details: JsValue): Bad = Bad(status, Some(details))
+  val empty: Bad = Bad("", None)
+  val invalidJson: Bad = Bad("invalid.json")
 }

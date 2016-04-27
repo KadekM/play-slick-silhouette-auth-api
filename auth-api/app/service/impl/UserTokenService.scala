@@ -14,7 +14,11 @@ import scala.concurrent.Future
 class UserTokenServiceImpl(userTokenDao: UserTokenDao) extends UserTokenService {
   override def issue(userUuid: String, action: UserTokenAction): Future[UserToken] = userTokenDao.issue(userUuid, action)
 
-  override def claim(token: String): Future[Option[UserToken]] = userTokenDao.claim(token)
+  override def claim(token: String): Future[Option[UserToken]] = {
+    val t = userTokenDao.find(token)
+    userTokenDao.remove(token)
+    t
+  }
 }
 
 /**

@@ -10,13 +10,14 @@ import model.exchange.{Bad, Token}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, Controller, Request}
 import auth.service.UserService
+import com.google.inject.Inject
 
 import scala.concurrent.Future
 
 /**
   * Sign in using login/password credentials (no 3d party social login).
   */
-class SignInCredentialsController(silhouette: Silhouette[DefaultEnv],
+class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
     userService: UserService,
     credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
 

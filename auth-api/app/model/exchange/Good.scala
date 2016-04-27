@@ -10,5 +10,6 @@ final case class Good(details: Option[JsValue])
 
 object Good {
   def apply(message: String): Good = Good(Some(JsString(message)))
+  def apply(message: JsValue): Good = Good(Some(message))
   val empty = Good(None)
 }
