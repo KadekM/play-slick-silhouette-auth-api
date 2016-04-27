@@ -17,7 +17,7 @@ class PermissionsController @Inject() (authorizer: PermissionsAuthorizer,
   def grant: Action[JsValue] = Action.async(parse.json) { implicit request ⇒
     request.body.validate[PermissionUserPair].map { perm ⇒
       permissionService.grant(perm.permission, perm.userUuid).map {
-        case true  ⇒ Ok(Json.toJson(Good.empty))
+        case true  ⇒ Ok(Json.toJson(Good.empty)) // TODO: correct return value to resource
         case false ⇒ BadRequest(Json.toJson(Bad("not.granted")))
       }
     }.recoverTotal(badRequestWithMessage)
