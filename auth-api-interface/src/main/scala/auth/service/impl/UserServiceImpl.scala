@@ -22,4 +22,6 @@ class UserServiceImpl(userDao: UserDao) extends UserService {
   override def retrieve(userUuid: String): Future[Option[User]] = userDao.find(userUuid)
 
   override def setState(userUuid: String, newState: UserState): Future[Boolean] = userDao.setState(userUuid, newState)
+
+  override def list(): Future[Seq[User]] = userDao.list
 }

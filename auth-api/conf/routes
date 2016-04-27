@@ -12,6 +12,11 @@ POST        /signup/password/create/:token    controllers.SignUpController.creat
 
 GET         /verify                           controllers.VerifyController.verify
 
+# Users
+
+GET        /users                             controllers.UsersController.listAll
+
+# Permissions
 
 PUT        /permissions                       controllers.PermissionsController.grant
 DELETE     /permissions                       controllers.PermissionsController.revoke

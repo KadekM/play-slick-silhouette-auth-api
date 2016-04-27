@@ -14,4 +14,6 @@ trait UserDao {
   def save(user: User): Future[User]
 
   def setState(userUuid: String, newState: UserState): Future[Boolean]
+
+  def list(): Future[Seq[User]]
 }

@@ -22,6 +22,10 @@ object User {
     case object Created extends UserState
     case object Activated extends UserState
     case object Deactivated extends UserState
+
+    val created = "created"
+    val activated = "activated"
+    val deactivated = "deactivated"
   }
 }
 

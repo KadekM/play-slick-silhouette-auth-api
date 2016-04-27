@@ -1,6 +1,6 @@
 package auth.module
 
-import auth.model.core.{AccessAdmin, AccessSpringBar}
+import auth.model.core.{AccessAdmin, AccessBar}
 import auth.persistence._
 import auth.persistence.model.authorization.PermissionsAuthorizer
 import auth.persistence.model.authorization.impl.DbPermissionsAuthorizerImpl
@@ -26,6 +26,7 @@ sealed class PersistenceModule extends AbstractModule with ScalaModule with Silh
 
   /**
     * Provides functionality to avoid spreading NamedDatabase across codebase
+ *
     * @return config provider for auth database
     */
   @Provides
@@ -59,7 +60,7 @@ class InitInMemoryDb @Inject() (protected val dbConfigProvider: AuthDatabaseConf
 
   // todo: Populate permissions
   Await.ready(db.run(permissionsQuery += AccessAdmin), 10.seconds)
-  Await.ready(db.run(permissionsQuery += AccessSpringBar), 10.seconds)
+  Await.ready(db.run(permissionsQuery += AccessBar), 10.seconds)
   println("Permissions populated")
 
 }

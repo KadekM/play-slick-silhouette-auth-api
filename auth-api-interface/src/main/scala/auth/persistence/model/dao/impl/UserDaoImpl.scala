@@ -23,13 +23,13 @@ class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
         .join(usersQuery).on(_.userUuid === _.uuid)
     } yield user
 
-    dbConfig.db.run(userQuery.result.headOption)
+    db.run(userQuery.result.headOption)
   }
 
   override def find(userUuid: String): Future[Option[User]] = {
     println("finging", userUuid)
     val query = usersQuery.filter(_.uuid === userUuid)
-    dbConfig.db.run(query.result.headOption)
+    db.run(query.result.headOption)
   }
 
   override def save(user: User): Future[User] = {
@@ -39,7 +39,7 @@ class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
       _ ← usersQuery.insertOrUpdate(user)
     } yield ()
 
-    dbConfig.db.run(act).map(_ ⇒ user)
+    db.run(act).map(_ ⇒ user)
   }
 
   override def setState(userUuid: String, newState: UserState): Future[Boolean] = {
@@ -48,6 +48,8 @@ class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
       .map(_.state)
       .update(newState)
 
-    dbConfig.db.run(act).map(amountChanged => amountChanged != 0)
+    db.run(act).map(amountChanged => amountChanged != 0)
   }
+
+  override def list(): Future[Seq[User]] = db.run(usersQuery.result)
 }

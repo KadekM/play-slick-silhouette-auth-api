@@ -35,4 +35,6 @@ trait UserService extends IdentityService[User] {
   def setState(userUuid: String, newState: User.UserState): Future[Boolean]
 
   def retrieve(userUuid: String): Future[Option[User]]
+
+  def list(): Future[Seq[User]]
 }

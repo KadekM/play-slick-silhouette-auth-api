@@ -14,5 +14,7 @@ package object exchange {
     implicit val signUpFormat: OFormat[SignUp] = SignUpFormats.restFormat
     implicit val createPasswordFormat: OFormat[CreatePassword] = CreatePasswordFormats.restForamt
     implicit val credentialsFormat: Format[Credentials] = CredentialsFormats.restFormat
+
+    implicit val permissionUserPairFormat: Format[PermissionUserPair] = PermissionUserPairFormat.rest
   }
 }

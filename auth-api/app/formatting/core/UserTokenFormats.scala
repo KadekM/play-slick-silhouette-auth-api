@@ -10,7 +10,7 @@ import play.api.libs.json._
 
 object UserTokenFormats {
 
-  object UserTokenAction {
+  object UserTokenActionFormats {
     val rest: Format[UserTokenAction] = {
       val reads: Reads[UserTokenAction] = new Reads[UserTokenAction] {
         override def reads(json: JsValue): JsResult[UserTokenAction] = json match {
@@ -32,7 +32,7 @@ object UserTokenFormats {
   }
 
   val rest: OFormat[UserToken] = {
-    implicit val userTokenAction: Format[UserTokenAction] = UserTokenAction.rest
+    implicit val userTokenAction: Format[UserTokenAction] = UserTokenActionFormats.rest
 
      ((__ \ "token").format[String] ~
       (__ \ "userUuid").format[String] ~

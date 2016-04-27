@@ -14,9 +14,14 @@ final case class UserToken(token: String,
                            tokenAction: UserTokenAction)
 
 object UserToken {
+  // TODO: extract tokenAction
   sealed trait UserTokenAction
   object TokenAction {
+    // TODO: nicer way to se/deserialize
     case object ActivateAccount extends UserTokenAction
     case object ResetPassword extends UserTokenAction
+
+    val activateAccount = "activate_account"
+    val resetPassword = "reset_password"
   }
 }

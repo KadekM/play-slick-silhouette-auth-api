@@ -9,6 +9,7 @@ import slick.jdbc.JdbcType
 trait AuthModelMappingSupport { self: HasAuthDbProfile =>
   import driver.api._
 
+  // TODO: sort out duplication
   implicit val stateMapper: JdbcType[UserState] = MappedColumnType.base[UserState, String]({
     case Created     ⇒ "created"
     case Activated   ⇒ "activated"
@@ -20,10 +21,10 @@ trait AuthModelMappingSupport { self: HasAuthDbProfile =>
   })
 
   implicit val permissionMapper: JdbcType[Permission] = MappedColumnType.base[Permission, String]({
-    case AccessAdmin => "access_admin"
-    case AccessSpringBar => "access_spring_bar"
+    case AccessAdmin => Permission.accessAdmin
+    case AccessBar => Permission.accessBar
   }, {
-    case "access_admin" => AccessAdmin
-    case "access_spring_bar" => AccessSpringBar
+    case Permission.accessAdmin => AccessAdmin
+    case Permission.accessBar => AccessBar
   })
 }
