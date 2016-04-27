@@ -15,6 +15,7 @@ GET         /verify                           controllers.VerifyController.verif
 # Users
 
 GET        /users                             controllers.UsersController.listAll
+GET        /users/:uuid                       controllers.UsersController.get(uuid)
 POST       /users                             controllers.SignUpController.signUpRequestRegistration
 
 # Permissions

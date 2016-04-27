@@ -12,5 +12,5 @@ trait ResponseHelpers { self: Results =>
     * @param badFormat format of response json
     */
   def badRequestWithMessage(err: JsError)(implicit badFormat: Format[Bad]): Future[Result] =
-    Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(err)))))
+    Future.successful(BadRequest(Json.toJson(Bad("json.invalid", JsError.toJson(err)))))
 }

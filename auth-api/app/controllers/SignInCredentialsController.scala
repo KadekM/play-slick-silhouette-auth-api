@@ -7,7 +7,6 @@ import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import model.exchange.{Bad, Token}
-import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, Controller, Request}
 import auth.service.UserService
@@ -18,7 +17,6 @@ import scala.concurrent.Future
   * Sign in using login/password credentials (no 3d party social login).
   */
 class SignInCredentialsController(silhouette: Silhouette[DefaultEnv],
-    translate: MessagesApi,
     userService: UserService,
     credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
 
@@ -36,11 +34,8 @@ class SignInCredentialsController(silhouette: Silhouette[DefaultEnv],
               case User.State.Activated ⇒
                 runSignIn(loginInfo)
 
-              case User.State.Created ⇒
-                Future.successful(BadRequest(Json.toJson(Bad(message = translate("signin.state.not.activated")))))
-
-              case User.State.Deactivated ⇒
-                Future.successful(BadRequest(Json.toJson(Bad(message = translate("signin.state.not.activated")))))
+              case User.State.Created | User.State.Deactivated ⇒
+                Future.successful(BadRequest(Json.toJson(Bad("signin.state.not.activated"))))
             }
 
           case None ⇒ Future.failed(new Exception("todo: couldn't find user"))

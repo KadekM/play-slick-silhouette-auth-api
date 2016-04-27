@@ -11,10 +11,10 @@ import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import model.exchange.{Bad, CreatePassword, Good, SignUp}
 import auth.persistence.model.dao.LoginInfoDao
-import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, Controller}
 import auth.service.UserService
+import com.google.inject.Inject
 import model.core.UserToken
 import model.core.UserToken.TokenAction
 import service.UserTokenService
@@ -22,12 +22,11 @@ import service.UserTokenService
 import scala.concurrent.Future
 
 /**
-  * repository
   * Sign up user to the system
+  * This is mostly related to interaction with silhouette
   */
-class SignUpController(silhouette: Silhouette[DefaultEnv],
+class SignUpController @Inject() (silhouette: Silhouette[DefaultEnv],
     passwordHasher: PasswordHasher,
-    translate: MessagesApi,
     userService: UserService,
     userTokenService: UserTokenService,
     loginInfoDao: LoginInfoDao,
@@ -45,7 +44,7 @@ class SignUpController(silhouette: Silhouette[DefaultEnv],
 
       userService.retrieve(loginInfo).flatMap {
         case Some(user) ⇒
-          Future.successful(BadRequest(Json.toJson(Bad(message = translate("user.exists")))))
+          Future.successful(Conflict(Json.toJson(Bad("user.exists"))))
 
         case None ⇒
           val user = User(UUID.randomUUID.toString, signUp.identifier, signUp.firstName, signUp.lastName,
@@ -54,19 +53,22 @@ class SignUpController(silhouette: Silhouette[DefaultEnv],
           for {
             user ← userService.save(user)
             _ ← loginInfoDao.save(loginInfo, user.uuid) // todo: this should be in one transaction
-            registrationToken ← userTokenService.issue(user.uuid, TokenAction.ActivateAccount) // TODO token
+            registrationToken ← userTokenService.issue(user.uuid, TokenAction.ActivateAccount) // TODO token type
           } yield {
             // TODO: remove token from here, do not return it, so users have to visit email - in email activate link is not link to api
-            Ok(Json.toJson(Good(registrationToken.token)))
+            Created(Json.toJson(Good(registrationToken.token))) // TODO:set location
           }
       }
     }.recoverTotal(badRequestWithMessage)
   }
 
-  def createPassword(token: String) = Action.async(parse.json) { implicit request ⇒
+  /**
+    * Creates a password for user that is found with `token` and is in correct state
+    */
+  def createPassword(token: String): Action[JsValue] = Action.async(parse.json) { implicit request ⇒
     request.body.validate[CreatePassword].map { requestPw ⇒
       userTokenService.claim(token).flatMap {
-        // TODO token (activatetoken?newpassword?)
+        // TODO token (activatetoken? newpassword?)
         case Some(UserToken(_, userUuid, expiresOn, UserToken.TokenAction.ActivateAccount)) if !isTokenExpired(expiresOn) ⇒
 
           // TODO return token as well
@@ -77,10 +79,10 @@ class SignUpController(silhouette: Silhouette[DefaultEnv],
             authInfo = passwordHasher.hash(requestPw.password)
             _ ← authInfoRepository.add(loginInfo, authInfo)
           } yield {
-            Ok(Json.toJson(Good("todo.message")))
+            Ok(Json.toJson(Good.empty))
           }
 
-        case _ ⇒ Future.successful(NotFound(Json.toJson(Bad(message = "token.invalid"))))
+        case _ ⇒ Future.successful(NotFound(Json.toJson(Bad("token.invalid"))))
       }
     }.recoverTotal(badRequestWithMessage)
   }

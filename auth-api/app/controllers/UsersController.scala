@@ -1,10 +1,10 @@
 package controllers
 
 import auth.persistence.model.authorization.PermissionsAuthorizer
-import auth.service.{ PermissionService, UserService }
+import auth.service.{PermissionService, UserService}
 import com.google.inject.Inject
-import play.api.libs.json.Json
-import play.api.mvc.{ Action, Controller }
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, AnyContent, Controller}
 
 //TODO: remove inject
 class UsersController @Inject() (authorizer: PermissionsAuthorizer,
@@ -15,9 +15,11 @@ class UsersController @Inject() (authorizer: PermissionsAuthorizer,
   //todo ec
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def listAll = Action.async { implicit request ⇒
+  def listAll: Action[AnyContent] = Action.async { implicit request ⇒
     usersService.list.map { res ⇒
       Ok(Json.obj("users" -> res))
     }
   }
+
+  def get(uuid: String): Action[JsValue] = ???
 }

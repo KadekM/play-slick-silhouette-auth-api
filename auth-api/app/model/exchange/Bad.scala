@@ -2,13 +2,15 @@ package model.exchange
 
 import play.api.libs.json.{JsString, JsValue}
 
-class Bad(val code: Option[Int], val error: JsValue) {
-  def status = "err"
-}
+/**
+  * Signalizes problem on server
+  * @param status represents details of the problem, such as `user.exists`
+  * @param details possible details, such as missing field in json
+  */
+
+final case class Bad(status: String, details: Option[JsValue] = None)
 
 object Bad {
-  def apply(code: Option[Int] = None, message: String) = new Bad(code, JsString(message))
-  def apply(code: Option[Int], message: JsValue) = new Bad(code, message)
-  def apply(message: JsValue) = new Bad(None, message)
-  def unapply(bad: Bad) = Some((bad.status, bad.code, bad.error))
+  def apply(status: String, simpleDetails: String): Bad = Bad(status, Some(JsString(simpleDetails)))
+  def apply(status: String, details: JsValue): Bad = Bad(status, Some(details))
 }
