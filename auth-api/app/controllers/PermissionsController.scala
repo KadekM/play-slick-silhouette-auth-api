@@ -7,7 +7,6 @@ import model.exchange._
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc.{ Action, AnyContent, Controller }
 
-//TODO: remove inject
 class PermissionsController @Inject() (authorizer: PermissionsAuthorizer,
     permissionService: PermissionService) extends Controller with ResponseHelpers {
 

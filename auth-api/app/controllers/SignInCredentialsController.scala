@@ -4,13 +4,14 @@ import auth.DefaultEnv
 import auth.model.core.User
 import com.mohiva.play.silhouette.api.services.AuthenticatorResult
 import com.mohiva.play.silhouette.api.util.Credentials
-import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
+import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import model.exchange.{Bad, Token}
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, Controller, Request}
+import model.exchange.{ Bad, Token }
+import play.api.libs.json.{ JsValue, Json }
+import play.api.mvc.{ Action, Controller, Request }
 import auth.service.UserService
 import com.google.inject.Inject
+import com.mohiva.play.silhouette.api.exceptions.ProviderException
 
 import scala.concurrent.Future
 
@@ -26,21 +27,28 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
 
   def signIn: Action[JsValue] = Action.async(parse.json) { implicit request ⇒
     request.body.validate[Credentials].map { credentials ⇒
-      credentialsProvider.authenticate(credentials).flatMap { loginInfo ⇒
+      val f = credentialsProvider.authenticate(credentials)
+        .flatMap { loginInfo ⇒
 
-        userService.retrieve(loginInfo).flatMap {
-          case Some(user) ⇒
+          userService.retrieve(loginInfo).flatMap {
+            case Some(user) ⇒
 
-            user.state match {
-              case User.State.Activated ⇒
-                runSignIn(loginInfo)
+              user.state match {
+                case User.State.Activated ⇒
+                  runSignIn(loginInfo)
 
-              case User.State.Created | User.State.Deactivated ⇒
-                Future.successful(BadRequest(Json.toJson(Bad("signin.state.not.activated"))))
-            }
+                case User.State.Created | User.State.Deactivated ⇒
+                  Future.successful(BadRequest(Json.toJson(Bad("signin.state.not.activated"))))
+              }
 
-          case None ⇒ Future.failed(new Exception("todo: couldn't find user"))
+            case None ⇒ Future.successful(Unauthorized(Json.toJson(Bad.empty)))
+          }
         }
+
+      f.recoverWith {
+        case e: ProviderException ⇒
+          //TODO: logging
+          Future.successful(Unauthorized(Json.toJson(Bad.empty)))
       }
     }.recoverTotal(badRequestWithMessage)
   }
