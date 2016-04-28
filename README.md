@@ -9,7 +9,7 @@ set up your etc/hosts:
 nginx config:
 ```
   location / {
-            root   /Users/marekkadek/Code/play-slick-silhouette-auth-api/webs/;
+            root   /Users/marekkadek/Code/play-slick-silhouette-auth-api/modules/webs/;
             index  index.html index.htm;
         }
 

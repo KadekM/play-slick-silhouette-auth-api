@@ -1,7 +1,0 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
-
-GET         /verify                  controllers.VerifyExtController.verify
-GET         /verify/admin            controllers.VerifyExtController.verifyAdmin
-

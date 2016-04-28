@@ -1,0 +1,28 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Signing in and out
+POST          /signin/credentials              auth.api.controllers.SignInCredentialsController.signIn
+POST          /signin/:provider                auth.api.controllers.SignInSocialController.signIn(provider)
+GET           /signout                         auth.api.controllers.SignOutController.signOut
+
+
+
+# Tokens
+POST        /tokens/:token                   auth.api.controllers.TokensController.execute(token)
+
+
+# Users
+GET        /users                             auth.api.controllers.UsersController.listAll
+GET        /users/:uuid                       auth.api.controllers.UsersController.get(uuid)
+POST       /users                             auth.api.controllers.UsersController.signUpRequestRegistration
+
+# Permissions
+POST       /permissions                       auth.api.controllers.PermissionsController.grant
+DELETE     /permissions                       auth.api.controllers.PermissionsController.revoke
+GET        /permissions                       auth.api.controllers.PermissionsController.listPossible
+GET        /permissions/assigned              auth.api.controllers.PermissionsController.listAssigned
+
+# Verifies
+GET         /verify                           auth.api.controllers.VerifyController.verify
