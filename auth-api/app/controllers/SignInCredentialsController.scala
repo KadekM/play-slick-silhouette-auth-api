@@ -4,11 +4,11 @@ import auth.DefaultEnv
 import auth.model.core.User
 import com.mohiva.play.silhouette.api.services.AuthenticatorResult
 import com.mohiva.play.silhouette.api.util.Credentials
-import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
+import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import model.exchange.{ Bad, Token }
-import play.api.libs.json.{ JsValue, Json }
-import play.api.mvc.{ Action, Controller, Request }
+import model.exchange.{Bad, Token}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc._
 import auth.service.UserService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
@@ -56,7 +56,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
   /**
     * Returns Token response with encoded auth data
     */
-  private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]): Future[AuthenticatorResult] =
+  private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]): Future[Result] =
     for {
       authenticator ← silhouette.env.authenticatorService.create(loginInfo)
       value ← silhouette.env.authenticatorService.init(authenticator)
@@ -65,5 +65,6 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
 
       response = Ok(Json.toJson(Token(token = value, expiresOn = expiration)))
       authResult ← silhouette.env.authenticatorService.embed(value, response)
-    } yield authResult
+      // TODO: cookies read from cfg etc, same as in filter
+    } yield authResult.withCookies(Cookie("jwt_token", value, domain = Some("fofobar.com")))
 }

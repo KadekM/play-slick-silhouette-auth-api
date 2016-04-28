@@ -16,13 +16,47 @@ import scala.concurrent.Future
   */
 
 class Filters @Inject() (corsFilter: CORSFilter, securityHeadersFilter: SecurityHeadersFilter, setCookieFilter: SetCookieFilter) extends HttpFilters {
-  def filters = Seq(corsFilter)
+  def filters = Seq(corsFilter, setCookieFilter)
 }
 
-class SetCookieFilter @Inject()(override implicit val mat: Materializer) extends Filter {
-  override def apply(f: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
+class SetCookieFilter @Inject() (override implicit val mat: Materializer) extends Filter {
+  override def apply(f: (RequestHeader) ⇒ Future[Result])(rh: RequestHeader): Future[Result] = {
+    // TODO: header name from silhouette
+    // TODO: cookie name and other stuff to config
+    // TODO: secure the cookies, https, etc
+    // TODO: document better
+    // TODO: ec
     import scala.concurrent.ExecutionContext.Implicits.global
-    f(rh)//.map(_.withHeaders("Access-Control-Allow-Origin" -> "*"))
+
+    val cookieName = "jwt_token"
+    val xAuthToken = "X-Auth-Token"
+    println("cookies - "+rh.cookies.mkString(","))
+
+    rh.headers.get(xAuthToken) match {
+      // Token was sent - discard current token cookie, and set it to new value
+      case Some(token) ⇒
+        println("got token, discard cookies and make new ones")
+        f(rh).map { result ⇒
+          result.discardingCookies(DiscardingCookie(cookieName))
+            .withCookies(Cookie(cookieName, token, domain = Some("fofobar.com")))
+        }
+
+      // Token was not sent - look into cookies and set to header
+      case None ⇒
+        println("no token, get cookies")
+        rh.cookies.get(cookieName) match {
+          // Cookie was found - transform it into X-Auth-Token
+          case Some(found) ⇒
+            println("cookies found, copying to header")
+            val newRh = rh.copy(headers = rh.headers.add(xAuthToken -> found.value))
+            f(newRh)
+
+          // Cookie was not found - process as you would 
+          case None ⇒
+            println("no cookies found")
+            f(rh)
+        }
+    }
   }
 }
 
