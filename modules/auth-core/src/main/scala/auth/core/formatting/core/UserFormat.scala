@@ -1,5 +1,7 @@
 package auth.core.formatting.core
 
+import java.util.UUID
+
 import auth.core.model.core.User
 import User.UserState
 import play.api.libs.functional.syntax._
@@ -26,14 +28,14 @@ object UserFormat {
     import play.api.libs.json.Writes._
 
     val reads: Reads[User] = (
-      (__ \ "uuid").read[String] ~
+      (__ \ "uuid").read[UUID] ~
       (__ \ "email").read[String] ~
       (__ \ "firstName").read[String] ~
       (__ \ "lastName").read[String] ~
       (__ \ "state").read[UserState])(User.apply _)
 
     val write: Writes[User] = (
-      (__ \ "uuid").write[String] ~
+      (__ \ "uuid").write[UUID] ~
       (__ \ "email").write[String] ~
       (__ \ "firstName").write[String] ~
       (__ \ "lastName").write[String] ~

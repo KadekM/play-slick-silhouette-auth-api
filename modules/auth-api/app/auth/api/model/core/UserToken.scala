@@ -2,6 +2,7 @@ package auth.api.model.core
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.UUID
 
 import auth.api.model.core.UserToken.UserTokenAction
 
@@ -9,7 +10,7 @@ import auth.api.model.core.UserToken.UserTokenAction
   * Represents token with actions
   */
 final case class UserToken(token: String,
-                           userUuid: String,
+                           userUuid: UUID,
                            expiresOn: LocalDateTime,
                            tokenAction: UserTokenAction)
 

@@ -53,7 +53,7 @@ class UsersController @Inject() (authorizer: PermissionsAuthorizer,
         case Some(user) ⇒
           Future.successful(Conflict(Json.toJson(Bad("user.exists"))))
         case None ⇒
-          val user = User(UUID.randomUUID.toString, signUp.identifier, signUp.firstName, signUp.lastName,
+          val user = User(UUID.randomUUID, signUp.identifier, signUp.firstName, signUp.lastName,
             User.State.Created)
 
           for {
@@ -63,7 +63,7 @@ class UsersController @Inject() (authorizer: PermissionsAuthorizer,
           } yield {
             // TODO: remove token from here, do not return it, so users have to visit email - in email activate link is not link to api
             Created(Json.toJson(Good(Json.obj("token" -> registrationToken.token))))
-              .withHeaders("Location" -> auth.api.controllers.routes.UsersController.get(user.uuid).url)
+              .withHeaders("Location" -> auth.api.controllers.routes.UsersController.get(user.uuid.toString).url)
           }
       }
     }.recoverTotal(badRequestWithMessage)

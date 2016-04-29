@@ -1,6 +1,7 @@
 package auth.api.formatting.core
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 import auth.api.model.core.UserToken
 import auth.api.model.core.UserToken.TokenAction._
@@ -35,7 +36,7 @@ object UserTokenFormats {
     implicit val userTokenAction: Format[UserTokenAction] = UserTokenActionFormats.rest
 
      ((__ \ "token").format[String] ~
-      (__ \ "userUuid").format[String] ~
+      (__ \ "userUuid").format[UUID] ~
       (__ \ "expiresOn").format[LocalDateTime] ~
       (__ \ "tokenAction").format[UserTokenAction])(UserToken.apply, unlift(UserToken.unapply))
   }

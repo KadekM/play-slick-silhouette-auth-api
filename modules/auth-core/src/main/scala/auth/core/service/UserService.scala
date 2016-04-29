@@ -1,5 +1,7 @@
 package auth.core.service
 
+import java.util.UUID
+
 import auth.core.model.core.User
 import com.mohiva.play.silhouette.api.services.IdentityService
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
@@ -32,9 +34,9 @@ trait UserService extends IdentityService[User] {
     * Sets new state to user with `userUuid`
     * @return true if new state was set successfuly, otherwise false
     */
-  def setState(userUuid: String, newState: User.UserState): Future[Boolean]
+  def setState(userUuid: UUID, newState: User.UserState): Future[Boolean]
 
-  def retrieve(userUuid: String): Future[Option[User]]
+  def retrieve(userUuid: UUID): Future[Option[User]]
 
   def list(): Future[Seq[User]]
 }

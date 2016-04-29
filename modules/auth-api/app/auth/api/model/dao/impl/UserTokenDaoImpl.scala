@@ -19,7 +19,7 @@ class UserTokenDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvide
   extends UserTokenDao with AuthDbAccess with TablesDefinitions {
   import driver.api._
 
-  override def issue(userUuid: String, action: UserTokenAction): Future[UserToken] = {
+  override def issue(userUuid: UUID, action: UserTokenAction): Future[UserToken] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
     // TODO: expiration days to config
     val token = UserToken(tokenHash, userUuid, LocalDateTime.now.plusDays(1), action)

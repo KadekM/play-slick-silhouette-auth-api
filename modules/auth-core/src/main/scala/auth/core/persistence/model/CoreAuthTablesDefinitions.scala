@@ -1,20 +1,23 @@
 package auth.core.persistence.model
 
+import java.util.UUID
+
 import auth.core.model.core.{Permission, User}
 import User.UserState
 import auth.core.persistence.{HasAuthDbProfile, SilhouetteLoginInfo}
-import com.mohiva.play.silhouette
 import slick.lifted.ProvenShape
 
-// TODO: nicer table names && check structure
+/**
+  * Contains the most important structure for the vary basics of auth
+  */
 trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbProfile {
   import driver.api._
 
   sealed class UserMapping(tag: Tag) extends Table[User](tag, "users") {
-    def uuid: Rep[String] = column[String]("uuid", O.PrimaryKey)
+    def uuid: Rep[UUID] = column[UUID]("uuid", O.PrimaryKey)
     def email: Rep[String] = column[String]("email")
-    def firstName: Rep[String] = column[String]("firstname")
-    def lastName: Rep[String] = column[String]("lastname")
+    def firstName: Rep[String] = column[String]("firstName")
+    def lastName: Rep[String] = column[String]("lastName")
     def state: Rep[UserState] = column[UserState]("state")
 
     def * : ProvenShape[User] =
@@ -23,13 +26,13 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
 
   val usersQuery = TableQuery[UserMapping]
 
-  sealed class LoginInfoMapping(tag: Tag) extends Table[LoginInfo](tag, "logininfo") {
+  sealed class LoginInfoMapping(tag: Tag) extends Table[LoginInfo](tag, "loginInfos") {
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def userUuid: Rep[String] = column[String]("user_uuid")
-    def providerId: Rep[String] = column[String]("providerid")
-    def providerKey: Rep[String] = column[String]("providerkey")
+    def userUuid: Rep[UUID] = column[UUID]("users_uuid")
+    def providerId: Rep[String] = column[String]("providerId")
+    def providerKey: Rep[String] = column[String]("providerKey")
 
-    foreignKey("fk_user_uuid", userUuid, usersQuery)(_.uuid)
+    foreignKey("fk_users_uuid", userUuid, usersQuery)(_.uuid)
 
     def * = (id, userUuid, providerId, providerKey) <> ((LoginInfo.apply _).tupled, LoginInfo.unapply)
   }
@@ -40,13 +43,13 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
   def findDbLoginInfo(loginInfo: SilhouetteLoginInfo): Query[LoginInfoMapping, LoginInfo, Seq] =
     loginInfosQuery.filter(db ⇒ db.providerId === loginInfo.providerID && db.providerKey === loginInfo.providerKey)
 
-  sealed class PasswordInfoMapping(tag: Tag) extends Table[PasswordInfo](tag, "passwordinfo") {
+  sealed class PasswordInfoMapping(tag: Tag) extends Table[PasswordInfo](tag, "passwordInfos") {
     def hasher = column[String]("hasher")
     def password = column[String]("password")
     def salt = column[Option[String]]("salt")
-    def loginInfoId = column[Long]("loginInfoId")
+    def loginInfoId = column[Long]("loginInfos_id")
 
-    foreignKey("fk_logininfo_id", loginInfoId, loginInfosQuery)(_.id)
+    foreignKey("fk_logininfos_id", loginInfoId, loginInfosQuery)(_.id)
 
     def * = (loginInfoId, hasher, password, salt) <> (PasswordInfo.tupled, PasswordInfo.unapply)
   }
@@ -61,12 +64,12 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
 
   val permissionsQuery = TableQuery[PermissionMapping]
 
-  sealed class PermissionToUserMapping(tag: Tag) extends Table[PermissionToUser](tag, "permissions_to_users") {
+  sealed class PermissionToUserMapping(tag: Tag) extends Table[PermissionToUser](tag, "permissionsToUsers") {
     def permission = column[Permission]("permissions_name")
-    def userUuid = column[String]("users_uuid")
+    def userUuid = column[UUID]("users_uuid")
 
-    foreignKey("fk_permission", permission, permissionsQuery)(_.name)
-    foreignKey("fk_user_uuid", userUuid, usersQuery)(_.uuid)
+    foreignKey("fk_permissions", permission, permissionsQuery)(_.name)
+    foreignKey("fk_users_uuid", userUuid, usersQuery)(_.uuid)
     def * = (permission, userUuid) <> (PermissionToUser.tupled, PermissionToUser.unapply)
   }
 

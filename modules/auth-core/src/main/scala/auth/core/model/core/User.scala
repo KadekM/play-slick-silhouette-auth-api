@@ -6,7 +6,7 @@ import auth.core.model.core.User.State.Created
 import auth.core.model.core.User.UserState
 import com.mohiva.play.silhouette.api.Identity
 
-final case class User(uuid: String,
+final case class User(uuid: UUID,
                       email: String,
                       firstName: String,
                       lastName: String,
@@ -15,7 +15,7 @@ final case class User(uuid: String,
   extends Identity
 
 object User {
-  def empty: User = User(UUID.randomUUID.toString, "", "", "", state = Created)
+  def empty: User = User(UUID.randomUUID, "", "", "", state = Created)
 
   sealed trait UserState
   object State {

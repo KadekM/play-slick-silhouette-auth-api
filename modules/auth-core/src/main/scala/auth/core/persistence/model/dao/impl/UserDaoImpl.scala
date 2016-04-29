@@ -1,5 +1,7 @@
 package auth.core.persistence.model.dao.impl
 
+import java.util.UUID
+
 import auth.core.model.core.User
 import auth.core.model.core.User.UserState
 import com.mohiva.play.silhouette
@@ -26,7 +28,7 @@ class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
     db.run(userQuery.result.headOption)
   }
 
-  override def find(userUuid: String): Future[Option[User]] = {
+  override def find(userUuid: UUID): Future[Option[User]] = {
     println("finging", userUuid)
     val query = usersQuery.filter(_.uuid === userUuid)
     db.run(query.result.headOption)
@@ -42,7 +44,7 @@ class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
     db.run(act).map(_ ⇒ user)
   }
 
-  override def setState(userUuid: String, newState: UserState): Future[Boolean] = {
+  override def setState(userUuid: UUID, newState: UserState): Future[Boolean] = {
    val act =  usersQuery
       .filter(_.uuid === userUuid)
       .map(_.state)

@@ -1,5 +1,7 @@
 package auth.core.persistence.model.dao.impl
 
+import java.util.UUID
+
 import auth.core.model.core.Permission
 import auth.core.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions, PermissionToUser}
 import auth.core.persistence.model.dao.PermissionDao
@@ -13,12 +15,12 @@ class PermissionDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvid
   //TODO
   import scala.concurrent.ExecutionContext.Implicits._
 
-  override def grant(permission: Permission, userUuid: String): Future[Boolean] = {
+  override def grant(permission: Permission, userUuid: UUID): Future[Boolean] = {
     val act = permissionsToUsersQuery += PermissionToUser(permission, userUuid)
     db.run(act).map(changed ⇒ changed != 0)
   }
 
-  override def revoke(permission: Permission, userUuid: String): Future[Boolean] = {
+  override def revoke(permission: Permission, userUuid: UUID): Future[Boolean] = {
     val act = permissionsToUsersQuery
       .filter(x ⇒ x.permission === permission && x.userUuid === userUuid)
       .delete
@@ -26,7 +28,7 @@ class PermissionDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvid
     db.run(act).map(changed ⇒ changed != 0)
   }
 
-  override def find(permission: Permission, userUuid: String): Future[Option[PermissionToUser]] = {
+  override def find(permission: Permission, userUuid: UUID): Future[Option[PermissionToUser]] = {
     val act = permissionsToUsersQuery
       .filter(x ⇒ x.permission === permission && x.userUuid === userUuid)
 

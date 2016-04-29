@@ -1,5 +1,7 @@
 package auth.core.persistence.model.dao
 
+import java.util.UUID
+
 import auth.core.model.core.Permission
 import auth.core.persistence.model.PermissionToUser
 
@@ -11,7 +13,7 @@ trait PermissionDao {
  *
     * @return true if new permission was granted successfully, otherwise false
     */
-  def grant(permission: Permission, userUuid: String): Future[Boolean]
+  def grant(permission: Permission, userUuid: UUID): Future[Boolean]
 
 
   /**
@@ -19,14 +21,14 @@ trait PermissionDao {
  *
     * @return true if new permission was revoked successfully, otherwise false
     */
-  def revoke(permission: Permission, userUuid: String): Future[Boolean]
+  def revoke(permission: Permission, userUuid: UUID): Future[Boolean]
 
   /**
     * Finds permission of specific user with all permission details
  *
     * @return Some of found permission details when they are found, otherwise None
     */
-  def find(permission: Permission, userUuid: String): Future[Option[PermissionToUser]]
+  def find(permission: Permission, userUuid: UUID): Future[Option[PermissionToUser]]
 
 
   /**

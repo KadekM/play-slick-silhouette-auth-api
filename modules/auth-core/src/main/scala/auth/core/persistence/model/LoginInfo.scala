@@ -1,3 +1,5 @@
 package auth.core.persistence.model
 
-final case class LoginInfo(id: Long, userUuid: String, providerId: String, providerKey: String)
+import java.util.UUID
+
+final case class LoginInfo(id: Long, userUuid: UUID, providerId: String, providerKey: String)

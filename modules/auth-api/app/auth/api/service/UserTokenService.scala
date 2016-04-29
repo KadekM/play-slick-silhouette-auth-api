@@ -1,5 +1,7 @@
 package auth.api.service
 
+import java.util.UUID
+
 import auth.api.model.core.UserToken
 import auth.api.model.core.UserToken.UserTokenAction
 
@@ -14,7 +16,7 @@ trait UserTokenService {
  *
     * @return new token
     */
-  def issue(userUuid: String, action: UserTokenAction): Future[UserToken]
+  def issue(userUuid: UUID, action: UserTokenAction): Future[UserToken]
 
   /**
     * Claims token if found and returns it. Once token is claimed, it cannot be claimed again.
