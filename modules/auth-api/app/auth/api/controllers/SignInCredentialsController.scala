@@ -25,7 +25,6 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
     credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
 
   import play.api.libs.concurrent.Execution.Implicits._
-  import auth.api.formatting.core.rest._
   import auth.api.formatting.exchange.rest._
 
   def signIn: Action[JsValue] = Action.async(parse.json) { implicit request ⇒
@@ -68,6 +67,5 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
 
       response = Ok(Json.toJson(Token(token = tokenValue, expiresOn = expiration)))
       authResult ← silhouette.env.authenticatorService.embed(tokenValue, response)
-      // TODO: cookies read from cfg etc, same as in filter
     } yield authResult.withCookies(authCookieSettings.make(tokenValue))
 }
