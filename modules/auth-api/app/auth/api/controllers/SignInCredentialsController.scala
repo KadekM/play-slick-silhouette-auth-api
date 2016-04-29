@@ -5,12 +5,13 @@ import auth.api.utils.date.Conversions
 import auth.core.DefaultEnv
 import auth.core.model.core.User
 import auth.core.service.UserService
+import auth.core.utils.CookieSettings
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
-import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
+import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc._
 
 import scala.concurrent.Future
@@ -19,6 +20,7 @@ import scala.concurrent.Future
   * Sign in using login/password credentials (no 3d party social login).
   */
 class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
+    authCookieSettings: CookieSettings,
     userService: UserService,
     credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
 
@@ -60,12 +62,12 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
   private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]): Future[Result] =
     for {
       authenticator ← silhouette.env.authenticatorService.create(loginInfo)
-      value ← silhouette.env.authenticatorService.init(authenticator)
+      tokenValue ← silhouette.env.authenticatorService.init(authenticator)
 
       expiration = Conversions.jodaToJava(authenticator.expirationDateTime)
 
-      response = Ok(Json.toJson(Token(token = value, expiresOn = expiration)))
-      authResult ← silhouette.env.authenticatorService.embed(value, response)
+      response = Ok(Json.toJson(Token(token = tokenValue, expiresOn = expiration)))
+      authResult ← silhouette.env.authenticatorService.embed(tokenValue, response)
       // TODO: cookies read from cfg etc, same as in filter
-    } yield authResult.withCookies(Cookie("jwt_token", value, domain = Some("fofobar.com")))
+    } yield authResult.withCookies(authCookieSettings.make(tokenValue))
 }

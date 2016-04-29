@@ -1,15 +1,16 @@
 package auth.api.controllers
 
+import auth.core.utils.CookieSettings
+import com.google.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller, DiscardingCookie}
 
-class SignOutController extends Controller {
+class SignOutController @Inject() (authCookieSettings: CookieSettings) extends Controller {
 
   /**
     * Signs out the users
     */
   def signOut: Action[AnyContent] = Action {
-    //TODO: set from common jwt stuff
-    Ok(Json.toJson("todo")).discardingCookies(DiscardingCookie("jwt_token", domain = Some("fofobar.com")))
+    Ok(Json.toJson("todo")).discardingCookies(DiscardingCookie(authCookieSettings.name))
   }
 }

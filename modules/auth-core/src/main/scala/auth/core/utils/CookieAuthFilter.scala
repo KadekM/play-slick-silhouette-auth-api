@@ -56,7 +56,7 @@ class CookieAuthFilter @Inject() (config: Configuration,
   }
 }
 
-private case class CookieSettings(config: Configuration) {
+case class CookieSettings @Inject() (config: Configuration) {
   val name = config.underlying.getString("filters.cookieauth.cookie.name")
   val tokenHeader = config.underlying.getString("filters.cookieauth.cookie.token.header")
   val maxAge = {
