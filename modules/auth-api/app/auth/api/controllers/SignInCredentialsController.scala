@@ -9,12 +9,12 @@ import auth.core.utils.CookieSettings
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
-import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
+import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import play.api.libs.json.{ JsValue, Json }
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Sign in using login/password credentials (no 3d party social login).
@@ -22,9 +22,8 @@ import scala.concurrent.Future
 class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
     authCookieSettings: CookieSettings,
     userService: UserService,
-    credentialsProvider: CredentialsProvider) extends Controller with ResponseHelpers {
+    credentialsProvider: CredentialsProvider)(implicit ec: ExecutionContext) extends Controller with ResponseHelpers {
 
-  import play.api.libs.concurrent.Execution.Implicits._
   import auth.api.formatting.exchange.rest._
 
   def signIn: Action[JsValue] = Action.async(parse.json) { implicit request ⇒

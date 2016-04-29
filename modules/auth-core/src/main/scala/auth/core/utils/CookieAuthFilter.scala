@@ -6,7 +6,7 @@ import akka.stream.Materializer
 import play.api.Configuration
 import play.api.mvc._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Filter which enables functionality like REMEMBER ME during login, or
@@ -16,16 +16,13 @@ import scala.concurrent.Future
   * If it's not present, it tries to supply it using that cookie
   */
 class CookieAuthFilter @Inject() (config: Configuration,
-    override implicit val mat: Materializer) extends Filter {
+    override implicit val mat: Materializer)(implicit ec: ExecutionContext) extends Filter {
 
   private[this] val cookie = CookieSettings(config)
   if (!cookie.secure || !cookie.httpOnly)
     System.err.println("Check your cookie settings (filters.cookieauth.cookie), as they are not secure!")
 
   override def apply(f: (RequestHeader) ⇒ Future[Result])(rh: RequestHeader): Future[Result] = {
-    // TODO: ec
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     println("cookies - " + rh.cookies.mkString(","))
 
     rh.headers.get(cookie.tokenHeader) match {

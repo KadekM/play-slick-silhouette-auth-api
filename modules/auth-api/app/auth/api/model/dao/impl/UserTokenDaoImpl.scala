@@ -9,13 +9,14 @@ import auth.api.model.core.UserToken.UserTokenAction
 import auth.api.model.TablesDefinitions
 import auth.api.model.dao.{Hasher, UserTokenDao}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-//TODO
-import scala.concurrent.ExecutionContext.Implicits.global
-
+/**
+  * Implementation of user token dao
+  * @param ec - execution context only for maps and flatMaps, of futures - it's safe to pass default one
+  */
 class UserTokenDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider,
-                       hasher: Hasher)
+                       hasher: Hasher)(implicit ec: ExecutionContext)
   extends UserTokenDao with AuthDbAccess with TablesDefinitions {
   import driver.api._
 

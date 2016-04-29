@@ -1,8 +1,9 @@
 package auth.api.controllers
 
+import com.google.inject.Inject
 import play.api.mvc.{Action, AnyContent, Controller}
 
-class SignInSocialController extends Controller {
+class SignInSocialController @Inject() extends Controller {
 
   /**
     * Signs in using providers such as Google or Facebook

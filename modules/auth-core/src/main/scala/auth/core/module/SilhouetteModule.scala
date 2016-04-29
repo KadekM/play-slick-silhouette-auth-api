@@ -1,8 +1,11 @@
 package auth.core.module
 
+import java.lang.annotation.Annotation
+
+import akka.actor.ActorSystem
 import auth.core.DefaultEnv
 import auth.core.service.UserService
-import com.google.inject.{AbstractModule, Provides}
+import com.google.inject.{AbstractModule, Inject, Provider, Provides}
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
 import com.mohiva.play.silhouette.api.util.{Clock, IDGenerator, PasswordHasher, PasswordInfo}
@@ -16,19 +19,20 @@ import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepo
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 
+import scala.annotation.Annotation
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
-//todo:
-import scala.concurrent.ExecutionContext.Implicits.global
-
 sealed class SilhouetteModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
+    bind[ExecutionContext].annotatedWith[SilhouetteContext].toProvider[SilhouetteExecutionContextProvider]
+
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
 
     bind[Clock].toInstance(Clock())
     bind[EventBus].toInstance(EventBus())
-    bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
+    bind[IDGenerator].toProvider[IDGeneratorProvider]
     bind[PasswordHasher].toInstance(new BCryptPasswordHasher())
 
     bind[ClassTag[JWTAuthenticator]].toInstance(implicitly[ClassTag[JWTAuthenticator]])
@@ -37,17 +41,20 @@ sealed class SilhouetteModule extends AbstractModule with ScalaModule {
   @Provides
   def provideEnvironment(userService: UserService,
     authenticatorService: AuthenticatorService[DefaultEnv#A],
-    eventBus: EventBus): Environment[DefaultEnv] =
-    Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)
+    eventBus: EventBus,
+    @SilhouetteContext ec: ExecutionContext): Environment[DefaultEnv] =
+    Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)(ec)
 
   @Provides
-  def provideAuthInfoRepository(passwordInfoDao: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository =
-    new DelegableAuthInfoRepository(passwordInfoDao)
+  def provideAuthInfoRepository(passwordInfoDao: DelegableAuthInfoDAO[PasswordInfo],
+    @SilhouetteContext ec: ExecutionContext): AuthInfoRepository =
+    new DelegableAuthInfoRepository(passwordInfoDao)(ec)
 
   @Provides
   def provideAuthenticatorService(configuration: Configuration,
     idGen: IDGenerator,
-    clock: Clock): AuthenticatorService[JWTAuthenticator] = {
+    clock: Clock,
+    @SilhouetteContext ec: ExecutionContext): AuthenticatorService[JWTAuthenticator] = {
     val cfg = configuration.underlying
     val sharedSecret = cfg.getString("silhouette.authenticator.jwt.sharedSecret")
     val issuer = cfg.getString("silhouette.authenticator.jwt.issuerClaim")
@@ -68,11 +75,21 @@ sealed class SilhouetteModule extends AbstractModule with ScalaModule {
       settings = jwtSettings,
       repository = None,
       idGenerator = idGen,
-      clock = clock)
+      clock = clock)(ec)
   }
 
   @Provides
   def provideCredentialsProvider(authInfoRepository: AuthInfoRepository,
-    passwordHasher: PasswordHasher): CredentialsProvider =
-    new CredentialsProvider(authInfoRepository, passwordHasher, Seq(passwordHasher))
+    passwordHasher: PasswordHasher, @SilhouetteContext ec: ExecutionContext): CredentialsProvider =
+    new CredentialsProvider(authInfoRepository, passwordHasher, Seq(passwordHasher))(ec)
+}
+
+private class IDGeneratorProvider @Inject() (@SilhouetteContext ec: ExecutionContext) extends Provider[IDGenerator] {
+  val generator = new SecureRandomIDGenerator()(ec)
+  override def get(): IDGenerator = generator
+}
+
+private class SilhouetteExecutionContextProvider @Inject() (system: ActorSystem) extends Provider[ExecutionContext] {
+  override def get(): ExecutionContext =
+    system.dispatchers.lookup("silhouette.thread.context")
 }

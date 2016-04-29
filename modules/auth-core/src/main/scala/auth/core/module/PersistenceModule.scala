@@ -1,13 +1,13 @@
 package auth.core.module
 
-import auth.core.model.core.{AccessAdmin, AccessBar}
+import auth.core.model.core.{ AccessAdmin, AccessBar }
 import auth.core.persistence.SilhouettePasswordInfo
 import auth.core.persistence.model.authorization.PermissionsAuthorizer
 import auth.core.persistence.model.authorization.impl.DbPermissionsAuthorizerImpl
-import auth.core.persistence.model.dao.impl.{LoginInfoDaoImpl, PasswordInfoDaoImpl, PermissionDaoImpl, UserDaoImpl}
-import auth.core.persistence.model.dao.{LoginInfoDao, PasswordInfoDao, PermissionDao, UserDao}
-import auth.core.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions}
-import com.google.inject.{AbstractModule, Inject, Provides}
+import auth.core.persistence.model.dao.impl.{ LoginInfoDaoImpl, PasswordInfoDaoImpl, PermissionDaoImpl, UserDaoImpl }
+import auth.core.persistence.model.dao.{ LoginInfoDao, PasswordInfoDao, PermissionDao, UserDao }
+import auth.core.persistence.model.{ AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions }
+import com.google.inject.{ AbstractModule, Inject, Provides }
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import net.codingwell.scalaguice.ScalaModule
 import play.api.db.slick.DatabaseConfigProvider
@@ -16,7 +16,7 @@ import slick.backend.DatabaseConfig
 import slick.dbio.Effect.Schema
 import slick.profile.BasicProfile
 
-import scala.concurrent.Await
+import scala.concurrent.{ Await, ExecutionContext }
 import scala.concurrent.duration._
 
 sealed class PersistenceModule extends AbstractModule with ScalaModule with SilhouetteProviders with DaoProviders {
@@ -26,7 +26,7 @@ sealed class PersistenceModule extends AbstractModule with ScalaModule with Silh
 
   /**
     * Provides functionality to avoid spreading NamedDatabase across codebase
- *
+    *
     * @return config provider for auth database
     */
   @Provides
@@ -36,15 +36,44 @@ sealed class PersistenceModule extends AbstractModule with ScalaModule with Silh
     }
 
   @Provides
-  def providePermissionsAuthorizer(doa: PermissionDao): PermissionsAuthorizer =
+  def providePermissionsAuthorizer(doa: PermissionDao)(implicit ec: ExecutionContext): PermissionsAuthorizer =
     new DbPermissionsAuthorizerImpl(doa)
 }
 
+/**
+  * Providers for dao layer
+  */
+trait DaoProviders {
+  // Remark: It is safe to pass default ec (play's one - akka's default dispatcher)
+  // since all db actions run on separate Slick's dispatcher, and those required by DAOs are
+  // only for mapping and flatmapping over futures
+  @Provides def provideUserDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): UserDao =
+    new UserDaoImpl(db)
+
+  @Provides def provideLoginInfoDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): LoginInfoDao =
+    new LoginInfoDaoImpl(db)
+
+  @Provides def providePasswordInfoDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): PasswordInfoDao =
+    new PasswordInfoDaoImpl(db)
+
+  @Provides def providePermissionDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): PermissionDao =
+    new PermissionDaoImpl(db)
+}
+
+/**
+  * Providers required by Silhouette
+  */
+trait SilhouetteProviders {
+  @Provides def provideDelegableAuthInfoDaoForPasswordInfo(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): DelegableAuthInfoDAO[SilhouettePasswordInfo] =
+    new PasswordInfoDaoImpl(db)
+}
+
+
+// TODO: This is just temporary hack to init db
 class InitInMemoryDb @Inject() (protected val dbConfigProvider: AuthDatabaseConfigProvider)
-    extends AuthDbAccess with CoreAuthTablesDefinitions {
+  extends AuthDbAccess with CoreAuthTablesDefinitions {
 
   import driver.api._
-  // todo ec
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val f: DBIOAction[Unit, NoStream, Schema] = for {
@@ -65,27 +94,3 @@ class InitInMemoryDb @Inject() (protected val dbConfigProvider: AuthDatabaseConf
 
 }
 
-/**
-  * Providers required by Silhouette
-  */
-trait SilhouetteProviders {
-  @Provides def provideDelegableAuthInfoDaoForPasswordInfo(db: AuthDatabaseConfigProvider): DelegableAuthInfoDAO[SilhouettePasswordInfo] =
-    new PasswordInfoDaoImpl(db)
-}
-
-/**
-  * Providers for dao layer
-  */
-trait DaoProviders {
-  @Provides def provideUserDao(db: AuthDatabaseConfigProvider): UserDao =
-    new UserDaoImpl(db)
-
-  @Provides def provideLoginInfoDao(db: AuthDatabaseConfigProvider): LoginInfoDao =
-    new LoginInfoDaoImpl(db)
-
-  @Provides def providePasswordInfoDao(db: AuthDatabaseConfigProvider): PasswordInfoDao =
-    new PasswordInfoDaoImpl(db)
-
-  @Provides def providePermissionDao(db: AuthDatabaseConfigProvider): PermissionDao =
-    new PermissionDaoImpl(db)
-}

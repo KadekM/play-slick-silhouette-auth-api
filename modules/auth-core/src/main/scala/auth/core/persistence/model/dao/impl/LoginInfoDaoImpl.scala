@@ -5,24 +5,24 @@ import java.util.UUID
 import auth.core.persistence._
 import auth.core.persistence.model._
 import auth.core.persistence.model.dao.LoginInfoDao
-import auth.core.persistence.model.{AuthDbAccess, LoginInfo}
+import auth.core.persistence.model.{ AuthDbAccess, LoginInfo }
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
-class LoginInfoDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
+/**
+  * Implementation of login info dao
+  * @param ec - execution context only for maps and flatMaps, of futures - it's safe to pass default one
+  */
+class LoginInfoDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext)
     extends LoginInfoDao with AuthDbAccess with CoreAuthTablesDefinitions {
 
   println("login info dao initiated")
 
   import driver.api._
-  import play.api.libs.concurrent.Execution.Implicits._
 
   override def save(loginInfo: SilhouetteLoginInfo, userUuid: UUID): Future[Unit] = {
     println("saving logininfo")
-    val act = for {
-      _ ← loginInfosQuery += LoginInfo(-1, userUuid, loginInfo.providerID, loginInfo.providerKey)
-    } yield ()
-
-    db.run(act)
+    db.run(loginInfosQuery += LoginInfo(-1, userUuid, loginInfo.providerID, loginInfo.providerKey))
+      .map(_ ⇒ ())
   }
 }

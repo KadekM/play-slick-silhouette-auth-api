@@ -16,17 +16,14 @@ import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TokensController @Inject() (passwordHasher: PasswordHasher,
     userService: UserService,
     userTokenService: UserTokenService,
     loginInfoDao: LoginInfoDao,
-    authInfoRepository: AuthInfoRepository) extends Controller with ResponseHelpers {
+    authInfoRepository: AuthInfoRepository)(implicit ec: ExecutionContext) extends Controller with ResponseHelpers {
 
-
-  // TODO ec
-  import scala.concurrent.ExecutionContext.Implicits.global
   import auth.api.formatting.exchange.rest._
 
   /**

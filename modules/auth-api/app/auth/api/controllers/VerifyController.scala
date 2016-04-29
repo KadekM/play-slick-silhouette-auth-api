@@ -5,11 +5,10 @@ import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
 import play.api.mvc.{Action, AnyContent, Controller}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class VerifyController @Inject()(silhouette: Silhouette[DefaultEnv]) extends Controller {
-
-  import play.api.libs.concurrent.Execution.Implicits._
+class VerifyController @Inject()(silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
+  extends Controller {
 
   def verify: Action[AnyContent] = Action.async { implicit request ⇒
     silhouette.SecuredRequestHandler { x ⇒

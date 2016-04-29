@@ -15,16 +15,14 @@ import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, Controller}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class UsersController @Inject() (authorizer: PermissionsAuthorizer,
     userService: UserService,
     userTokenService: UserTokenService,
     loginInfoDao: LoginInfoDao,
-    permissionService: PermissionService) extends Controller with ResponseHelpers {
+    permissionService: PermissionService)(implicit ec: ExecutionContext) extends Controller with ResponseHelpers {
 
-  //todo ec
-  import scala.concurrent.ExecutionContext.Implicits.global
   import auth.api.formatting.exchange.rest._
   import auth.core.formatting.core.rest._
 

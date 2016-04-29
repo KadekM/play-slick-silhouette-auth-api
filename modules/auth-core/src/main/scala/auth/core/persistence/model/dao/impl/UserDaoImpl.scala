@@ -8,14 +8,18 @@ import com.mohiva.play.silhouette
 import auth.core.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions}
 import auth.core.persistence.model.dao.UserDao
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+
+/**
+  * Provides implementation of user dao
+  * @param ec - execution context only for maps and flatMaps, of futures - it's safe to pass default one
+  */
 
 // TODO: should not run queries, should only prepare them for services, instead of full dbconfig, get just api
-class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)
+class UserDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext)
   extends UserDao with AuthDbAccess with CoreAuthTablesDefinitions {
 
   import driver.api._
-  import play.api.libs.concurrent.Execution.Implicits._
   println("user dao init")
 
   override def find(loginInfo: silhouette.api.LoginInfo): Future[Option[User]] = {
