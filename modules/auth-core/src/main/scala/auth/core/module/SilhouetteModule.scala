@@ -52,9 +52,11 @@ sealed class SilhouetteModule extends AbstractModule with ScalaModule {
     val sharedSecret = cfg.getString("silhouette.authenticator.jwt.sharedSecret")
     val issuer = cfg.getString("silhouette.authenticator.jwt.issuerClaim")
     val expiry = cfg.getDuration("silhouette.authenticator.jwt.authenticatorExpiry")
+    val fieldName = cfg.getString("silhouette.authenticator.jwt.fieldName")
 
     // we do not encrypt subject, as we do not transmit sensitive data AND it'd have to be decryptable across services
     val jwtSettings = JWTAuthenticatorSettings(
+      fieldName = fieldName,
       encryptSubject = false,
       issuerClaim = issuer,
       authenticatorExpiry = Duration.fromNanos(expiry.toNanos),
