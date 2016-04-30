@@ -1,7 +1,7 @@
 package auth.api.controllers
 
 import auth.api.model.exchange._
-import auth.core.persistence.model.authorization.PermissionsAuthorizer
+import auth.core.service.authorization.PermissionsAuthorizer
 import auth.core.service.PermissionService
 import com.google.inject.Inject
 import play.api.libs.json.{ JsValue, Json }

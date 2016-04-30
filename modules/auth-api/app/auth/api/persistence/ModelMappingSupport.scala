@@ -1,4 +1,4 @@
-package auth.api.model
+package auth.api.persistence
 
 import auth.api.model.core.UserToken.{TokenAction, UserTokenAction}
 import auth.core.persistence.HasAuthDbProfile

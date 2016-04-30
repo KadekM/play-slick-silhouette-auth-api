@@ -1,4 +1,4 @@
-package auth.api.model.dao
+package auth.api.persistence.repo
 
 trait Hasher {
   /**

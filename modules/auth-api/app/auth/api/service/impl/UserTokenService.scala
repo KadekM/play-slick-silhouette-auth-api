@@ -5,20 +5,28 @@ import java.util.UUID
 
 import auth.api.model.core.UserToken
 import auth.api.model.core.UserToken.UserTokenAction
-import auth.api.model.dao.{Hasher, UserTokenDao}
+import auth.api.persistence.repo.{ Hasher, UserTokenRepo }
 import auth.api.service.UserTokenService
+import auth.core.persistence.model.{ AuthDatabaseConfigProvider, AuthDbAccess }
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
-class UserTokenServiceImpl(userTokenDao: UserTokenDao) extends UserTokenService {
+class UserTokenServiceImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider,
+    userTokenRepo: UserTokenRepo)(implicit ec: ExecutionContext) extends UserTokenService with AuthDbAccess {
+
+  import driver.api._
+
   override def issue(userUuid: UUID, action: UserTokenAction): Future[UserToken] =
-    userTokenDao.issue(userUuid, action)
+    db.run(userTokenRepo.issue(userUuid, action))
 
   override def claim(token: String): Future[Option[UserToken]] = {
-    val t = userTokenDao.find(token)
-    userTokenDao.remove(token)
-    t
+    val act = for {
+      t ← userTokenRepo.find(token)
+      _ ← userTokenRepo.remove(token)
+    } yield t
+
+    db.run(act.transactionally)
   }
 }
 

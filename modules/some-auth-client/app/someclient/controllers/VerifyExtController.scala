@@ -2,7 +2,7 @@ package someclient.controllers
 
 import auth.core.DefaultEnv
 import auth.core.model.core.AccessAdmin
-import auth.core.persistence.model.authorization.PermissionsAuthorizer
+import auth.core.service.authorization.PermissionsAuthorizer
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
 import play.api.mvc.{Action, AnyContent, Controller}

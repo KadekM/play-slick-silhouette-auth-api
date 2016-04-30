@@ -1,4 +1,4 @@
-package auth.core.persistence.model.authorization
+package auth.core.service.authorization
 
 import auth.core.model.core.User
 import com.mohiva.play.silhouette.api.{Authenticator, Authorization}

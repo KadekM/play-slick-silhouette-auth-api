@@ -6,7 +6,7 @@ import auth.api.model.core.UserToken.TokenAction
 import auth.api.model.exchange._
 import auth.api.service.UserTokenService
 import auth.core.model.core._
-import auth.core.persistence.model.authorization.PermissionsAuthorizer
+import auth.core.service.authorization.PermissionsAuthorizer
 import auth.core.persistence.model.dao.LoginInfoDao
 import auth.core.service.{PermissionService, UserService}
 import com.google.inject.Inject

@@ -1,7 +1,6 @@
-package auth.api.model
+package auth.api.persistence
 
 import java.sql.Timestamp
-import java.time.LocalDateTime
 import java.util.UUID
 
 import auth.api.model.core.UserToken

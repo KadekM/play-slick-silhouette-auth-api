@@ -1,13 +1,13 @@
 package auth.core.module
 
-import auth.core.model.core.{ AccessAdmin, AccessBar }
+import auth.core.model.core.{AccessAdmin, AccessBar}
 import auth.core.persistence.SilhouettePasswordInfo
-import auth.core.persistence.model.authorization.PermissionsAuthorizer
-import auth.core.persistence.model.authorization.impl.DbPermissionsAuthorizerImpl
-import auth.core.persistence.model.dao.impl.{ LoginInfoDaoImpl, PasswordInfoDaoImpl, PermissionDaoImpl, UserDaoImpl }
-import auth.core.persistence.model.dao.{ LoginInfoDao, PasswordInfoDao, PermissionDao, UserDao }
-import auth.core.persistence.model.{ AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions }
-import com.google.inject.{ AbstractModule, Inject, Provides }
+import auth.core.persistence.model.dao.impl.{LoginInfoDaoImpl, PasswordInfoDaoImpl}
+import auth.core.persistence.model.dao.{LoginInfoDao, PasswordInfoDao}
+import auth.core.persistence.model.repo.{PermissionRepo, UserRepo}
+import auth.core.persistence.model.repo.impl.{PermissionRepoImpl, UserRepoImpl}
+import auth.core.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions}
+import com.google.inject.{AbstractModule, Inject, Provides}
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import net.codingwell.scalaguice.ScalaModule
 import play.api.db.slick.DatabaseConfigProvider
@@ -16,10 +16,11 @@ import slick.backend.DatabaseConfig
 import slick.dbio.Effect.Schema
 import slick.profile.BasicProfile
 
-import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 
-sealed class PersistenceModule extends AbstractModule with ScalaModule with SilhouetteProviders with DaoProviders {
+sealed class PersistenceModule extends AbstractModule
+  with ScalaModule with SilhouetteProviders with DaoProviders with RepoProviders {
   override def configure(): Unit = {
     bind[InitInMemoryDb].asEagerSingleton // only for in memory db, create tables at start
   }
@@ -34,10 +35,6 @@ sealed class PersistenceModule extends AbstractModule with ScalaModule with Silh
     new AuthDatabaseConfigProvider {
       override def get[P <: BasicProfile]: DatabaseConfig[P] = dbConfigProvider.get
     }
-
-  @Provides
-  def providePermissionsAuthorizer(doa: PermissionDao)(implicit ec: ExecutionContext): PermissionsAuthorizer =
-    new DbPermissionsAuthorizerImpl(doa)
 }
 
 /**
@@ -47,17 +44,19 @@ trait DaoProviders {
   // Remark: It is safe to pass default ec (play's one - akka's default dispatcher)
   // since all db actions run on separate Slick's dispatcher, and those required by DAOs are
   // only for mapping and flatmapping over futures
-  @Provides def provideUserDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): UserDao =
-    new UserDaoImpl(db)
-
   @Provides def provideLoginInfoDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): LoginInfoDao =
     new LoginInfoDaoImpl(db)
 
   @Provides def providePasswordInfoDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): PasswordInfoDao =
     new PasswordInfoDaoImpl(db)
+}
 
-  @Provides def providePermissionDao(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): PermissionDao =
-    new PermissionDaoImpl(db)
+trait RepoProviders {
+  @Provides def provideUserRepo(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): UserRepo =
+    new UserRepoImpl(db)
+
+  @Provides def providePermissionRepo(db: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext): PermissionRepo =
+    new PermissionRepoImpl(db)
 }
 
 /**

@@ -8,6 +8,7 @@ import auth.core.persistence.model.PermissionToUser
 import scala.concurrent.Future
 
 trait PermissionService {
+  def find(permission: Permission, userUuid: UUID): Future[Option[PermissionToUser]]
 
   def grant(permission: Permission, userUuid: UUID): Future[Boolean]
 

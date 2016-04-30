@@ -1,6 +1,6 @@
-package auth.api.model.dao.impl
+package auth.api.persistence.repo.impl
 
-import auth.api.model.dao.Hasher
+import auth.api.persistence.repo.Hasher
 import play.api.libs.Codecs
 
 class Sha1HasherImpl extends Hasher {
