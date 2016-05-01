@@ -19,13 +19,25 @@ object User {
 
   sealed trait UserState
   object State {
+
+    /**
+      * User is created, but does not contain password assigned
+      */
     case object Created extends UserState
+
+
+    /**
+      * User has successfully activated account by creating password
+      */
     case object Activated extends UserState
+
+    /**
+      * User's account has been deactivated
+      */
     case object Deactivated extends UserState
 
-    val created = "created"
-    val activated = "activated"
-    val deactivated = "deactivated"
+    def fromString(x: String): Option[UserState] =
+      Array(Created, Activated, Deactivated).find(_.toString == x)
   }
 }
 

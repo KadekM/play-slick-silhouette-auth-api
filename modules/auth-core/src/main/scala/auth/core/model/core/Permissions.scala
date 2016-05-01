@@ -6,6 +6,5 @@ case object AccessAdmin extends Permission
 case object AccessBar extends Permission
 
 object Permission {
-  val accessAdmin = "access_admin"
-  val accessBar = "access_bar"
+  def fromString(x: String): Option[Permission] = Array(AccessAdmin, AccessBar).find(_.toString == x)
 }

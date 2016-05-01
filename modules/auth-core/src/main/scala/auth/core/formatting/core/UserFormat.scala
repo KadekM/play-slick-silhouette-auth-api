@@ -8,20 +8,16 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 object UserFormat {
-  //todo
   implicit val restUserState = new Format[UserState] {
     override def reads(json: JsValue): JsResult[UserState] = json match {
-      case JsString(User.State.created)     ⇒ JsSuccess(User.State.Created)
-      case JsString(User.State.activated)   ⇒ JsSuccess(User.State.Activated)
-      case JsString(User.State.deactivated) ⇒ JsSuccess(User.State.Deactivated)
-      case _                                ⇒ JsError(s"Can't parse $json to UserTokenAction")
+      case JsString(x) ⇒ User.State
+        .fromString(x)
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"No state found for $json"))
+      case _ ⇒ JsError(s"Can't parse $json")
     }
 
-    override def writes(o: UserState): JsValue = o match {
-      case User.State.Created     ⇒ JsString(User.State.created)
-      case User.State.Activated   ⇒ JsString(User.State.activated)
-      case User.State.Deactivated ⇒ JsString(User.State.deactivated)
-    }
+    override def writes(o: UserState): JsValue = JsString(o.toString)
   }
 
   val rest: Format[User] = {
