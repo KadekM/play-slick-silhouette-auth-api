@@ -16,13 +16,9 @@ import scala.concurrent.{ ExecutionContext, Future }
 class LoginInfoDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext)
     extends LoginInfoDao with AuthDbAccess with CoreAuthTablesDefinitions {
 
-  println("login info dao initiated")
-
   import driver.api._
 
-  override def save(loginInfo: SilhouetteLoginInfo, userUuid: UUID): Future[Unit] = {
-    println("saving logininfo")
+  override def save(loginInfo: SilhouetteLoginInfo, userUuid: UUID): Future[Unit] =
     db.run(loginInfosQuery += LoginInfo(-1, userUuid, loginInfo.providerID, loginInfo.providerKey))
       .map(_ ⇒ ())
-  }
 }

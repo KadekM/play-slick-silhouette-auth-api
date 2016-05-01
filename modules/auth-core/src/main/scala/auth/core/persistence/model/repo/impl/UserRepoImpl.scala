@@ -19,10 +19,8 @@ import scala.concurrent.ExecutionContext
 class UserRepoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)(implicit ec: ExecutionContext) extends UserRepo with AuthDbAccess with CoreAuthTablesDefinitions {
   import driver.api._
   import driver.profile._
-  println("user repo init")
 
   override def find(loginInfo: silhouette.api.LoginInfo): DBIOAction[Option[User], NoStream, Read] = {
-    println("finding ", loginInfo)
     val userQuery = for {
       (loginInfo, user) ← findDbLoginInfo(loginInfo)
         .join(usersQuery).on(_.userUuid === _.uuid)
@@ -32,14 +30,11 @@ class UserRepoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider)(i
   }
 
   override def find(userUuid: UUID): DBIOAction[Option[User], NoStream, Read] = {
-    println("finging", userUuid)
     val query = usersQuery.filter(_.uuid === userUuid)
     query.result.headOption
   }
 
   override def save(user: User): DBIOAction[User, NoStream, Write] = {
-    println("saving", user)
-
     val act = for {
       _ ← usersQuery.insertOrUpdate(user)
     } yield ()

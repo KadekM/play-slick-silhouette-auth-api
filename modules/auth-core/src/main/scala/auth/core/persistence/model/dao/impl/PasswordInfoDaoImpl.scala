@@ -15,7 +15,6 @@ class PasswordInfoDaoImpl(protected val dbConfigProvider: AuthDatabaseConfigProv
   extends PasswordInfoDao with AuthDbAccess with CoreAuthTablesDefinitions {
 
   import driver.api._
-  println("passwordinfod daao initi")
 
   override def find(loginInfo: SilhouetteLoginInfo): Future[Option[SilhouettePasswordInfo]] = {
     val query = passwordInfoQuery(loginInfo).result.headOption

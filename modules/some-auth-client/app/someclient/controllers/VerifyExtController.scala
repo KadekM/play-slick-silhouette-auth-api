@@ -9,20 +9,17 @@ import play.api.mvc.{Action, AnyContent, Controller}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-// TODO: remove inject
 class VerifyExtController @Inject() (silhouette: Silhouette[DefaultEnv],
   permissions: PermissionsAuthorizer)(implicit ec: ExecutionContext)
     extends Controller {
 
   def verify: Action[AnyContent] = Action.async { implicit request ⇒
-    println("starting")
     silhouette.SecuredRequestHandler { x ⇒
       Future.successful(HandlerResult(Ok("All's good"), Some(x.identity.email)))
     }.map {
       case HandlerResult(r, Some(data)) ⇒
         Ok(data)
       case HandlerResult(r, None) ⇒
-        println(r)
         Forbidden
     }
   }
