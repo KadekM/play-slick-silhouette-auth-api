@@ -32,7 +32,7 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
     def providerId: Rep[String] = column[String]("providerId")
     def providerKey: Rep[String] = column[String]("providerKey")
 
-    foreignKey("fk_users_uuid", userUuid, usersQuery)(_.uuid)
+    def usersFk = foreignKey("fk_users_uuid", userUuid, usersQuery)(_.uuid)
 
     def * = (id, userUuid, providerId, providerKey) <> ((LoginInfo.apply _).tupled, LoginInfo.unapply)
   }
@@ -49,7 +49,7 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
     def salt = column[Option[String]]("salt")
     def loginInfoId = column[Long]("loginInfos_id")
 
-    foreignKey("fk_logininfos_id", loginInfoId, loginInfosQuery)(_.id)
+    def loginInfosFk = foreignKey("fk_logininfos_id", loginInfoId, loginInfosQuery)(_.id)
 
     def * = (loginInfoId, hasher, password, salt) <> (PasswordInfo.tupled, PasswordInfo.unapply)
   }
@@ -68,8 +68,8 @@ trait CoreAuthTablesDefinitions extends AuthModelMappingSupport with HasAuthDbPr
     def permission = column[Permission]("permissions_name")
     def userUuid = column[UUID]("users_uuid")
 
-    foreignKey("fk_permissions", permission, permissionsQuery)(_.name)
-    foreignKey("fk_users_uuid", userUuid, usersQuery)(_.uuid)
+    def permissionsFk = foreignKey("fk_permissions", permission, permissionsQuery)(_.name)
+    def usersFk = foreignKey("fk_users_uuid", userUuid, usersQuery)(_.uuid)
     def * = (permission, userUuid) <> (PermissionToUser.tupled, PermissionToUser.unapply)
   }
 

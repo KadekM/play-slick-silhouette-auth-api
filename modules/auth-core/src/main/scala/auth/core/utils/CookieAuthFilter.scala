@@ -16,7 +16,6 @@ import scala.concurrent.{ ExecutionContext, Future }
   * If authentication token is present with request, it sets the cookie to remember it.
   * If it's not present, it tries to supply it using that cookie
   */
-// TODO: in case response is Unauthorized or foribdden - discard cookies
 class CookieAuthFilter @Inject() (config: Configuration,
     override implicit val mat: Materializer)(implicit ec: ExecutionContext) extends Filter {
 
