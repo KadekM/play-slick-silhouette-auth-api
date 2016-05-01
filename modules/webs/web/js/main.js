@@ -1,6 +1,7 @@
 //var url = "http://fofobar.com/auth";
 var url = "/auth";
 var $token = $("#token");
+var $rememberMe = $("#remember_me");
 
 $("#create_user").click(function() {
     $.ajax({ url: url+"/users",
@@ -45,7 +46,8 @@ $("#login").click(function() {
              type: "POST",
              dataType: 'json',
              contentType: "application/json; charset=utf-8",
-             data: JSON.stringify({ identifier: "marek@foo.bar", password: "somestrongpassword123!" })
+             data: JSON.stringify({ identifier: "marek@foo.bar",
+              password: "somestrongpassword123!", rememberMe: $rememberMe.is(':checked') })
              })
       .done(function( data ) {
         console.log(data)

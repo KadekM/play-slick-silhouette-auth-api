@@ -27,8 +27,8 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
   import auth.api.formatting.exchange.rest._
 
   def signIn: Action[JsValue] = Action.async(parse.json) { implicit request ⇒
-    request.body.validate[Credentials].map { credentials ⇒
-      val f = credentialsProvider.authenticate(credentials)
+    request.body.validate[SignIn].map { signIn ⇒
+      val f = credentialsProvider.authenticate(signIn.toCredentials)
         .flatMap { loginInfo ⇒
 
           userService.retrieve(loginInfo).flatMap {
@@ -36,7 +36,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
 
               user.state match {
                 case User.State.Activated ⇒
-                  runSignIn(loginInfo)
+                  runSignIn(loginInfo, signIn.rememberMe)
 
                 case User.State.Created | User.State.Deactivated ⇒
                   Future.successful(BadRequest(Json.toJson(Bad("signin.state.not.activated"))))
@@ -57,7 +57,7 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
   /**
     * Returns Token response with encoded auth data
     */
-  private def runSignIn(loginInfo: LoginInfo)(implicit request: Request[JsValue]): Future[Result] =
+  private def runSignIn(loginInfo: LoginInfo, rememberMe: Boolean)(implicit request: Request[JsValue]): Future[Result] =
     for {
       authenticator ← silhouette.env.authenticatorService.create(loginInfo)
       tokenValue ← silhouette.env.authenticatorService.init(authenticator)
@@ -66,5 +66,8 @@ class SignInCredentialsController @Inject() (silhouette: Silhouette[DefaultEnv],
 
       response = Ok(Json.toJson(Token(token = tokenValue, expiresOn = expiration)))
       authResult ← silhouette.env.authenticatorService.embed(tokenValue, response)
-    } yield authResult.withCookies(authCookieSettings.make(tokenValue))
+    } yield {
+      if (rememberMe) authResult.withCookies(authCookieSettings.make(tokenValue))
+      else authResult
+    }
 }
