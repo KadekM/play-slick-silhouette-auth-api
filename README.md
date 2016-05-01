@@ -1,15 +1,44 @@
+This is example on having central REST endpoint for auth related stuff, and securing other endpoints
+using same known silhouette mechanism. Currently each client hits DB containing authentication data
+on its own, but that can be implemented differently if one wishes to have single central point.
 
-db is not (trivially) interchangable. It's prepared/hardcoded for postgres with possibility to use H2
+# Architecture
 
-set up your etc/hosts:
+`Auth-core` contains shared functionality that APIs that require authentication and authorization
+should depend on. It introduces configurable stuff which can be found in reference.conf. You need
+to enable some default functionality in modules (check auth-api's application.conf)
+
+`Auth-api` is api for auth related stuff. You can do stuff as signing up/in, giving permissions etc.
+
+`Some-auth-core` represents some unrelated API that would like to use same authentication, in other words,
+someone can register on Auth-api and can then use same login on different api.
+
+## Layering
+
+Code is simply layered to keep dependencies linear.
+`Model <- Persistence <- Service <- Formatting <- Controllers`
+i.e., Service can depend on interfaces from Persistence and Model.
+
+## Separation
+
+DAOs - data access objects - execute queries against database.
+
+Repos - repositories - return actions, and it's up to caller to execute them, thus giving more fine-grained
+control over execution (if you want to run them in transactions etc), usually in services.
+
+Services - encapsulate business logic decision, and usually their code hit database (directly or through DAOs)
+
+# Try it out
+
+First, set up your `etc/hosts`:
 ```
 127.0.0.1 fofobar.com
 ```
 
-nginx config:
+Spin up nginx using configuration:
 ```
   location / {
-            root   /Users/marekkadek/Code/play-slick-silhouette-auth-api/modules/webs/;
+            root   /Users/?someuser?/Code/play-slick-silhouette-auth-api/modules/webs/;
             index  index.html index.htm;
         }
 
@@ -22,17 +51,9 @@ nginx config:
 	}
 ```
 
-Start play clients AUTH via `run 9000` and CLIENT `run 9001`
+Start your database `docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres`
+Start auth api `sbt ";project authApi; run 9000"`
+Start play clients `sbt ;project someAuthClient; run 9001`
 
-Access websites through http://fofobar.com/web1/ and http://fofobar.com/web2/ and http://fofobar.com/web-ext/.
-
-
-- interface is only shared stuff required to be able to do auths
-
-- introduces auth db under @NamedDatabase("auth")
-
-- need to enable modules from auth that you want to use
-
-- document permissions
-
-- document difference between dakos etc
+Access websites through `http://fofobar.com/web1/` and `http://fofobar.com/web2/` and `http://fofobar.com/web-ext/` and
+read messages in developer console.

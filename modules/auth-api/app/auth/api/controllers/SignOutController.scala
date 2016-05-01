@@ -1,5 +1,6 @@
 package auth.api.controllers
 
+import auth.api.model.exchange.Good
 import auth.core.utils.CookieSettings
 import com.google.inject.Inject
 import play.api.libs.json.Json
@@ -11,6 +12,6 @@ class SignOutController @Inject() (authCookieSettings: CookieSettings) extends C
     * Signs out the users
     */
   def signOut: Action[AnyContent] = Action {
-    Ok(Json.toJson("todo")).discardingCookies(DiscardingCookie(authCookieSettings.name))
+    Ok(Json.toJson(Good.empty)).discardingCookies(DiscardingCookie(authCookieSettings.name))
   }
 }
