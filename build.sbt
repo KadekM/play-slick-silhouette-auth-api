@@ -10,32 +10,32 @@ resolvers += "Atlassian Releases" at "https://maven.atlassian.com/public/"
 lazy val authCore = project.in(file("modules/auth-core"))
   .settings(commonSettings: _*)
     .settings(libraryDependencies ++= Seq(
-      "com.mohiva" %% "play-silhouette" % "4.0.0-BETA4",
-      "com.mohiva" %% "play-silhouette-password-bcrypt" % "4.0.0-BETA4",
-      "com.mohiva" %% "play-silhouette-persistence" % "4.0.0-BETA4",
-      "com.mohiva" %% "play-silhouette-testkit" % "4.0.0-BETA4" % Test,
-      //"com.mohiva" %% "play-silhouette-persistence-memory" % "4.0.0-BETA4",
-      "net.codingwell" %% "scala-guice" % "4.0.1",
-      //"com.typesafe.slick" %% "slick" % "3.1.1",
-      "com.h2database" % "h2" % "1.4.191",
-      "com.typesafe.play" %% "play-slick" % "2.0.0",
-      //"com.typesafe.play" %% "play-mailer" % "2.5.2",
-      "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
-      "org.postgresql" % "postgresql" % "9.4.1208.jre7",
-      filters,
+      "com.mohiva" %% "play-silhouette" % "4.0.0-BETA4" % Compile,
+      "com.mohiva" %% "play-silhouette-password-bcrypt" % "4.0.0-BETA4" % Compile,
+      "com.mohiva" %% "play-silhouette-persistence" % "4.0.0-BETA4" % Compile,
+      "net.codingwell" %% "scala-guice" % "4.0.1" % Compile,
+      "org.postgresql" % "postgresql" % "9.4.1208.jre7" % Compile,
+      "com.typesafe.play" %% "play-slick" % "2.0.0" % Compile,
 
+      "com.github.tminglei" %% "slick-pg" % "0.12.2" % Compile,
+      "com.github.tminglei" %% "slick-pg_play-json" % "0.12.2" % Compile,
+      "com.github.tminglei" %% "slick-pg_date2" % "0.12.2" % Compile,
 
-      "com.github.tminglei" %% "slick-pg" % "0.12.2",
-      "com.github.tminglei" %% "slick-pg_play-json" % "0.12.2",
-      "com.github.tminglei" %% "slick-pg_date2" % "0.12.2",
-
-      "com.mohiva" %% "play-silhouette-testkit" % "4.0.0-BETA4" % "test"
+      "com.h2database" % "h2" % "1.4.191" % Test,
+      "com.mohiva" %% "play-silhouette-testkit" % "4.0.0-BETA4" % Test
     ))
 
 lazy val authApi = project.in(file("modules/auth-api"))
       .settings(commonSettings: _*)
+        .settings(libraryDependencies ++= Seq(
+          "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0" % Compile,
+          filters
+        ))
       .enablePlugins(PlayScala).dependsOn(authCore)
 
 lazy val someAuthClient = (project in file("modules/some-auth-client"))
     .settings(commonSettings: _*)
+    .settings(libraryDependencies ++= Seq(
+      filters
+    ))
     .enablePlugins(PlayScala).dependsOn(authCore)

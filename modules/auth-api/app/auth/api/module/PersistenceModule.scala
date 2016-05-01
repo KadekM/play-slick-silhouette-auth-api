@@ -1,11 +1,10 @@
 package auth.api.module
 
 import auth.api.persistence.TablesDefinitions
-import auth.api.persistence.repo.impl.{ Sha1HasherImpl, UserTokenRepoImpl }
-import auth.api.persistence.repo.{ Hasher, UserTokenRepo }
-import auth.core.model.core.{ AccessAdmin, AccessBar }
-import auth.core.persistence.model.{ AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions }
-import com.google.inject.{ AbstractModule, Inject, Provides }
+import auth.api.persistence.repo.impl.{Sha1HasherImpl, UserTokenRepoImpl}
+import auth.api.persistence.repo.{Hasher, UserTokenRepo}
+import auth.core.persistence.model.{AuthDatabaseConfigProvider, AuthDbAccess, CoreAuthTablesDefinitions}
+import com.google.inject.{AbstractModule, Inject, Provides}
 import net.codingwell.scalaguice.ScalaModule
 
 import scala.concurrent.ExecutionContext
