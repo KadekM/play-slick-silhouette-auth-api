@@ -4,9 +4,10 @@ import javax.inject.Inject
 
 import akka.stream.Materializer
 import play.api.Configuration
+import play.api.http.Status
 import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
   * Filter which enables functionality like REMEMBER ME during login, or
@@ -28,8 +29,11 @@ class CookieAuthFilter @Inject() (config: Configuration,
       // Token was sent - discard current token cookie, and set it to new value
       case Some(token) ⇒
         f(rh).map { result ⇒
-          result.discardingCookies(DiscardingCookie(cookie.name))
-            .withCookies(cookie.make(token))
+          val withoutCookie = result.discardingCookies(DiscardingCookie(cookie.name))
+
+          // Have we been denied entry? If yes, discard our cookie
+          if (isDeniedEntry(result)) withoutCookie
+          else withoutCookie.withCookies(cookie.make(token))
         }
 
       // Token was not sent - look into cookies and set to header
@@ -38,7 +42,13 @@ class CookieAuthFilter @Inject() (config: Configuration,
           // Cookie was found - transform it into X-Auth-Token
           case Some(found) ⇒
             val newRh = rh.copy(headers = rh.headers.add(cookie.tokenHeader -> found.value))
-            f(newRh)
+            val result = f(newRh)
+            // Have we been denied entry in our result? If yes, discard cookie we sent (as it is invalid)
+            result.map { withCookie =>
+              if (isDeniedEntry(withCookie)) withCookie.discardingCookies(DiscardingCookie(cookie.name))
+              else withCookie
+            }
+
 
           // Cookie was not found - process as you would 
           case None ⇒
@@ -46,6 +56,12 @@ class CookieAuthFilter @Inject() (config: Configuration,
         }
     }
   }
+
+  /**
+    * Was request forbidden?
+    */
+  private def isDeniedEntry(result: Result): Boolean =
+    result.header.status == Status.FORBIDDEN || result.header.status == Status.UNAUTHORIZED
 }
 
 case class CookieSettings @Inject() (config: Configuration) {
