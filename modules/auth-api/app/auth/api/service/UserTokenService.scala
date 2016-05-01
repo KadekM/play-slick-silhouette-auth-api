@@ -16,7 +16,7 @@ trait UserTokenService {
  *
     * @return new token
     */
-  def issue(userUuid: UUID, action: UserTokenAction): Future[UserToken]
+  def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): Future[UserToken]
 
   /**
     * Claims token if found and returns it. Once token is claimed, it cannot be claimed again.

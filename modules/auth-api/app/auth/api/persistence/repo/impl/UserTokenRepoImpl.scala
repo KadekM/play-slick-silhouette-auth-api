@@ -22,10 +22,10 @@ class UserTokenRepoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvid
     extends UserTokenRepo with AuthDbAccess with TablesDefinitions {
   import driver.api._
 
-  override def issue(userUuid: UUID, action: UserTokenAction): DBIOAction[UserToken, NoStream, Write] = {
+  override def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): DBIOAction[UserToken, NoStream, Write] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
     // TODO: expiration days to config/argument
-    val token = UserToken(tokenHash, userUuid, LocalDateTime.now.plusDays(1), action)
+    val token = UserToken(tokenHash, userUuid, LocalDateTime.now.plusHours(forHours), action)
     val act = userTokensQuery += token
     act.map(_ ⇒ token)
   }

@@ -17,8 +17,8 @@ class UserTokenServiceImpl(protected val dbConfigProvider: AuthDatabaseConfigPro
 
   import driver.api._
 
-  override def issue(userUuid: UUID, action: UserTokenAction): Future[UserToken] =
-    db.run(userTokenRepo.issue(userUuid, action))
+  override def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): Future[UserToken] =
+    db.run(userTokenRepo.issue(userUuid, action, forHours))
 
   override def claim(token: String): Future[Option[UserToken]] = {
     val act = for {
@@ -37,17 +37,17 @@ class InMemoryUserTokenServiceImpl(hasher: Hasher) extends UserTokenService {
 
   val tokens: ArrayBuffer[UserToken] = ArrayBuffer.empty[UserToken]
 
-  override def issue(userUuid: UUID, action: UserTokenAction): Future[UserToken] = {
+  override def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): Future[UserToken] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
 
     // TODO: expiration days to config
-    val t = UserToken(tokenHash, userUuid, LocalDateTime.now.plusDays(1), action)
+    val t = UserToken(tokenHash, userUuid, LocalDateTime.now.plusHours(forHours), action)
     tokens += t
     Future.successful(t)
   }
 
   override def claim(token: String): Future[Option[UserToken]] = {
-    val t = tokens.find(x ⇒ x.token == token)
+    val t = tokens.find(x ⇒ x.token == token && x.expiresOn.isAfter(LocalDateTime.now))
     t.map(found ⇒ tokens -= found)
     Future.successful(t)
   }

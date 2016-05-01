@@ -8,7 +8,7 @@ import slick.dbio.Effect.{Read, Write}
 import slick.dbio.{DBIOAction, NoStream}
 
 trait UserTokenRepo {
-  def issue(userUuid: UUID, action: UserTokenAction): DBIOAction[UserToken, NoStream, Write]
+  def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): DBIOAction[UserToken, NoStream, Write]
 
   def find(token: String): DBIOAction[Option[UserToken], NoStream, Read]
 

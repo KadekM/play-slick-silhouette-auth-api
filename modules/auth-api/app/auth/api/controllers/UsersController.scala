@@ -8,16 +8,18 @@ import auth.api.service.UserTokenService
 import auth.core.model.core._
 import auth.core.service.authorization.PermissionsAuthorizer
 import auth.core.persistence.model.dao.LoginInfoDao
-import auth.core.service.{PermissionService, UserService}
+import auth.core.service.{ PermissionService, UserService }
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.Configuration
+import play.api.libs.json.{ JsValue, Json }
+import play.api.mvc.{ Action, AnyContent, Controller }
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
-class UsersController @Inject() (authorizer: PermissionsAuthorizer,
+class UsersController @Inject() (configuration: Configuration,
+    authorizer: PermissionsAuthorizer,
     userService: UserService,
     userTokenService: UserTokenService,
     loginInfoDao: LoginInfoDao,
@@ -26,11 +28,13 @@ class UsersController @Inject() (authorizer: PermissionsAuthorizer,
   import auth.api.formatting.exchange.rest._
   import auth.core.formatting.core.rest._
 
+  val newAccountTokenValidFor = configuration.underlying.getDuration("tokens.activate-account.validfor")
+
   /**
     * Lists all users
     */
   def listAll: Action[AnyContent] = Action.async { implicit request ⇒
-    userService.list.map { res ⇒
+    userService.list().map { res ⇒
       Ok(Json.obj("users" -> res))
     }
   }
@@ -56,8 +60,8 @@ class UsersController @Inject() (authorizer: PermissionsAuthorizer,
 
           for {
             user ← userService.save(user)
-            _ ← loginInfoDao.save(loginInfo, user.uuid) // todo: this should be in one transaction
-            registrationToken ← userTokenService.issue(user.uuid, TokenAction.ActivateAccount) // TODO token type
+            _ ← loginInfoDao.save(loginInfo, user.uuid) // todo: this should be in one transaction, move out
+            registrationToken ← userTokenService.issue(user.uuid, TokenAction.ActivateAccount, newAccountTokenValidFor.toHours)
           } yield {
             // TODO: remove token from here, do not return it, so users have to visit email - in email activate link is not link to api
             Created(Json.toJson(Good(Json.obj("token" -> registrationToken.token))))
