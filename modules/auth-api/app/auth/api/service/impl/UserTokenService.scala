@@ -39,8 +39,6 @@ class InMemoryUserTokenServiceImpl(hasher: Hasher) extends UserTokenService {
 
   override def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): Future[UserToken] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
-
-    // TODO: expiration days to config
     val t = UserToken(tokenHash, userUuid, LocalDateTime.now.plusHours(forHours), action)
     tokens += t
     Future.successful(t)

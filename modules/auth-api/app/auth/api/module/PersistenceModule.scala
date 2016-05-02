@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext
 class PersistenceModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[Hasher].to[Sha1HasherImpl]
-    bind[PrintStatementsToConsole].asEagerSingleton
+    //bind[PrintStatementsToConsole].asEagerSingleton
   }
 
   @Provides def provideUserTokenRepo(dbConfigProvider: AuthDatabaseConfigProvider,

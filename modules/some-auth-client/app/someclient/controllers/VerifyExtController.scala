@@ -5,6 +5,7 @@ import auth.core.model.core.AccessAdmin
 import auth.core.service.authorization.PermissionsAuthorizer
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,8 +25,8 @@ class VerifyExtController @Inject() (silhouette: Silhouette[DefaultEnv],
     }
   }
 
-  def verifyAdmin = silhouette.SecuredAction(permissions.require(AccessAdmin)).async { implicit req ⇒
-    Future.successful { Ok("a") }
+  def verifyAdmin = silhouette.SecuredAction(permissions.require(AccessAdmin)) { implicit req ⇒
+    Ok(Json.toJson(""))
   }
 }
 

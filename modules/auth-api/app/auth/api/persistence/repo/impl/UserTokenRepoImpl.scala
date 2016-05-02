@@ -24,7 +24,6 @@ class UserTokenRepoImpl(protected val dbConfigProvider: AuthDatabaseConfigProvid
 
   override def issue(userUuid: UUID, action: UserTokenAction, forHours: Long): DBIOAction[UserToken, NoStream, Write] = {
     val tokenHash = hasher.hash(UUID.randomUUID.toString)
-    // TODO: expiration days to config/argument
     val token = UserToken(tokenHash, userUuid, LocalDateTime.now.plusHours(forHours), action)
     val act = userTokensQuery += token
     act.map(_ ⇒ token)

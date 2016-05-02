@@ -5,12 +5,13 @@ import java.util.UUID
 import auth.api.model.core.UserToken.TokenAction
 import auth.api.model.exchange._
 import auth.api.service.UserTokenService
+import auth.core.DefaultEnv
 import auth.core.model.core._
 import auth.core.service.authorization.PermissionsAuthorizer
 import auth.core.persistence.model.dao.LoginInfoDao
 import auth.core.service.{ PermissionService, UserService }
 import com.google.inject.Inject
-import com.mohiva.play.silhouette.api.LoginInfo
+import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import play.api.Configuration
 import play.api.libs.json.{ JsValue, Json }
@@ -18,8 +19,9 @@ import play.api.mvc.{ Action, AnyContent, Controller }
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-class UsersController @Inject() (configuration: Configuration,
-    authorizer: PermissionsAuthorizer,
+class UsersController @Inject() (silhouette: Silhouette[DefaultEnv],
+    configuration: Configuration,
+    permissions: PermissionsAuthorizer,
     userService: UserService,
     userTokenService: UserTokenService,
     loginInfoDao: LoginInfoDao,
@@ -33,11 +35,14 @@ class UsersController @Inject() (configuration: Configuration,
   /**
     * Lists all users
     */
-  def listAll: Action[AnyContent] = Action.async { implicit request ⇒
-    userService.list().map { res ⇒
-      Ok(Json.obj("users" -> res))
+  def listAll: Action[AnyContent] =
+    Action.async { implicit req =>
+    //silhouette.SecuredAction.async { implicit req =>
+    //silhouette.SecuredAction(permissions.require(AccessAdmin)).async { implicit req ⇒
+      userService.list().map { res ⇒
+        Ok(Json.obj("users" -> res))
+      }
     }
-  }
 
   /**
     * Gets user with specified `uuid`

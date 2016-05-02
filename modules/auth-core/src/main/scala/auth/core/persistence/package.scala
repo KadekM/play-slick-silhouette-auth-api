@@ -1,6 +1,6 @@
 package auth.core
 
-import slick.driver.PostgresDriver
+import slick.driver.{JdbcProfile, PostgresDriver}
 
 package object persistence {
   type AuthDbProfile = auth.core.persistence.drivers.PostgresDriver // auth.core.persistence.drivers.H2Driver

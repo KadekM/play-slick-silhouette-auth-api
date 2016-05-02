@@ -57,3 +57,7 @@ Start play clients `sbt ;project someAuthClient; run 9001`
 
 Access websites through `http://fofobar.com/web1/` and `http://fofobar.com/web2/` and `http://fofobar.com/web-ext/` and
 read messages in developer console.
+
+### TODO
+- rest api silhoette client (so clients don't need to hit DB and get all bunch of dependencies...)
+- other providers

@@ -26,3 +26,4 @@ GET        /permissions/assigned              auth.api.controllers.PermissionsCo
 
 # Verifies
 GET         /verify                           auth.api.controllers.VerifyController.verify
+GET         /verify/admin                     auth.api.controllers.VerifyController.verifyAdmin

@@ -33,7 +33,10 @@ class TokensController @Inject() (passwordHasher: PasswordHasher,
     userTokenService.claim(token).flatMap {
       case Some(t) if !isTokenExpired(t.expiresOn) ⇒
         executeImpl(t)
-      case None ⇒
+      case Some(t) =>
+        //todo: log that someone tried to access expired token
+        Future.successful(NotFound(Json.toJson(Bad.empty)))
+      case _ ⇒
         Future.successful(NotFound(Json.toJson(Bad.empty)))
     }
   }
@@ -46,7 +49,7 @@ class TokensController @Inject() (passwordHasher: PasswordHasher,
           json.validate[CreatePassword].map { requestPw ⇒
             for {
               _ ← userService.setState(userUuid, User.State.Activated)
-              Some(user) ← userService.retrieve(userUuid) // todo: test what if none
+              Some(user) ← userService.retrieve(userUuid)
               loginInfo = LoginInfo(CredentialsProvider.ID, user.email)
               authInfo = passwordHasher.hash(requestPw.password)
               _ ← authInfoRepository.add(loginInfo, authInfo)
@@ -62,5 +65,6 @@ class TokensController @Inject() (passwordHasher: PasswordHasher,
       Future.successful(NotImplemented)
   }
 
-  private def isTokenExpired(expiresOn: LocalDateTime): Boolean = expiresOn.isBefore(LocalDateTime.now)
+  private def isTokenExpired(expiresOn: LocalDateTime): Boolean =
+    expiresOn.isBefore(LocalDateTime.now)
 }

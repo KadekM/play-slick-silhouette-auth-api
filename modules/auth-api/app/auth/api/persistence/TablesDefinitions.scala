@@ -5,6 +5,7 @@ import java.util.UUID
 
 import auth.api.model.core.UserToken
 import auth.api.model.core.UserToken.UserTokenAction
+import auth.core.model.core.User.UserState
 import auth.core.persistence.HasAuthDbProfile
 import auth.core.persistence.model.{AuthModelMappingSupport, CoreAuthTablesDefinitions}
 import slick.lifted.ProvenShape
@@ -33,4 +34,7 @@ trait TablesDefinitions extends ModelMappingSupport with CoreAuthTablesDefinitio
   }
 
   val userTokensQuery = TableQuery[UserTokenMapping]
+
+  def findState(x: UUID): Query[Rep[UserState], UserState, Seq] = usersQuery.filter(_.uuid === x).map(_.state)
+
 }

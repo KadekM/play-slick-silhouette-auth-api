@@ -14,15 +14,15 @@ alter table "permissionsToUsers" add constraint "fk_users_uuid" foreign key("use
 
 
 # --- !Downs
-
-drop table "users";
 alter table "userTokens" drop constraint "fk_users_uuid";
-drop table "userTokens";
 alter table "loginInfos" drop constraint "fk_users_uuid";
-drop table "loginInfos";
 alter table "passwordInfos" drop constraint "fk_logininfos_id";
-drop table "passwordInfos";
-drop table "permissions";
 alter table "permissionsToUsers" drop constraint "fk_permissions";
 alter table "permissionsToUsers" drop constraint "fk_users_uuid";
+
+drop table "users";
+drop table "userTokens";
+drop table "loginInfos";
+drop table "passwordInfos";
+drop table "permissions";
 drop table "permissionsToUsers";
