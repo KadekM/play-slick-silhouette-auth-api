@@ -1,4 +1,4 @@
-package util
+package testkit.util
 
 import auth.api.persistence.TablesDefinitions
 import auth.core.persistence.AuthDbProfile

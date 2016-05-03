@@ -19,7 +19,9 @@ lazy val authCore = project.in(file("modules/auth-core"))
 
       "com.github.tminglei" %% "slick-pg" % "0.12.2" % Compile,
       "com.github.tminglei" %% "slick-pg_play-json" % "0.12.2" % Compile,
-      "com.github.tminglei" %% "slick-pg_date2" % "0.12.2" % Compile
+      "com.github.tminglei" %% "slick-pg_date2" % "0.12.2" % Compile,
+
+      "org.scalacheck" %% "scalacheck" % "1.12.5" % Test
     ))
 
 lazy val authApi = project.in(file("modules/auth-api"))
@@ -28,13 +30,14 @@ lazy val authApi = project.in(file("modules/auth-api"))
           "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0" % Compile,
           "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test,
           "com.mohiva" %% "play-silhouette-testkit" % "4.0.0-BETA4" % Test,
-          filters
+          "org.mockito" % "mockito-core" % "2.0.52-beta" % Test,
+            filters
         ))
-      .enablePlugins(PlayScala).dependsOn(authCore)
+      .enablePlugins(PlayScala).dependsOn(authCore % "compile->compile;test->test")
 
 lazy val someAuthClient = (project in file("modules/some-auth-client"))
     .settings(commonSettings: _*)
     .settings(libraryDependencies ++= Seq(
       filters
     ))
-    .enablePlugins(PlayScala).dependsOn(authCore)
+    .enablePlugins(PlayScala).dependsOn(authCore % "compile->compile;test->test")

@@ -1,7 +1,8 @@
-package util
+package testkit.util
 
+import auth.api.model.core.UserToken
 import auth.api.persistence.repo.Hasher
-import auth.core.model.core.{AccessAdmin, AccessBar}
+import auth.core.model.core.{AccessAdmin, AccessBar, User}
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.db.evolutions.Evolutions
 
@@ -45,4 +46,20 @@ trait PopulateDb { this: OneAppPerSuite with TestAuthDatabaseAccess ⇒
   Await.ready(db.run(tables.permissionsToUsersQuery += PermissionToUser(AccessAdmin, alice.uuid)), timeout)
   */
 
+  object persistence {
+    def insert[A](a: A)(implicit insA: Insertable[A]): Unit =
+      insA.insert(a)
+  }
+
+  implicit val userInsertable = new Insertable[User] {
+    override def insert(a: User): Unit = Await.ready(db.run(tables.usersQuery += a), 10.seconds)
+  }
+
+  implicit val userTokenInsertable = new Insertable[UserToken] {
+    override def insert(a: UserToken): Unit = Await.ready(db.run(tables.userTokensQuery += a), 10.seconds)
+  }
+}
+
+trait Insertable[A] {
+  def insert(a: A)
 }

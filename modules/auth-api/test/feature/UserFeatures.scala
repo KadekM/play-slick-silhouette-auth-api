@@ -7,9 +7,9 @@ import auth.api.model.exchange._
 import auth.core.model.core.AccessAdmin
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import util.FeatureIntegrationTest
+import testkit.util.IntegrationTest
 
-class UserFeatures extends FeatureIntegrationTest {
+class UserFeatures extends IntegrationTest {
   import auth.api.formatting.exchange.rest._
 
   "User" should {

@@ -34,7 +34,4 @@ trait TablesDefinitions extends ModelMappingSupport with CoreAuthTablesDefinitio
   }
 
   val userTokensQuery = TableQuery[UserTokenMapping]
-
-  def findState(x: UUID): Query[Rep[UserState], UserState, Seq] = usersQuery.filter(_.uuid === x).map(_.state)
-
 }

@@ -11,15 +11,14 @@ import auth.core.model.core.User.UserState
 import auth.core.persistence.model.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import play.api.libs.json.Json
-import util.FeatureIntegrationTest
+import testkit.util.IntegrationTest
 import play.api.test.Helpers._
 import slick.dbio.Effect.Read
 import slick.profile.{FixedSqlStreamingAction, SqlAction}
 
-class TokenFeatures extends FeatureIntegrationTest {
+class TokenFeatures extends IntegrationTest {
   import driver.api._
   import auth.api.formatting.exchange.rest._
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   "Token" should {
     "be consumed if it exists and activate user if it's of proper action" in new Fixture {
