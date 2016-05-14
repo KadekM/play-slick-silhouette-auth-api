@@ -36,28 +36,34 @@ First, set up your `etc/hosts`:
 ```
 
 Spin up nginx using configuration:
-```
-  location / {
-            root   /Users/?someuser?/Code/play-slick-silhouette-auth-api/modules/webs/;
-            index  index.html index.htm;
-        }
 
-  location /auth/ {
-	    proxy_pass http://127.0.0.1:9000/;
+    location / {
+      root   /Users/?someuser?/Code/play-slick-silhouette-auth-api/modules/webs/;
+      index  index.html index.htm;
     }
 
-  location /client/ {
-	    proxy_pass http://127.0.0.1:9001/;
-	}
-```
+    location /auth/ {
+      proxy_pass http://127.0.0.1:9000/;
+    }
 
-Start your database `docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres`
-Start auth api `sbt ";project authApi; run 9000"`
-Start play clients `sbt ;project someAuthClient; run 9001`
+    location /client/ {
+      proxy_pass http://127.0.0.1:9001/;
+    }
 
-Access websites through `http://fofobar.com/web1/` and `http://fofobar.com/web2/` and `http://fofobar.com/web-ext/` and
-read messages in developer console.
+Start the Postgres database server:
+
+    docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres
+
+Start auth api:
+
+    sbt ";project authApi; run 9000"
+    
+Start Play clients:
+
+    sbt ";project someAuthClient; run 9001"
+
+Access websites through [http://fofobar.com/web1/](http://fofobar.com/web1/), [http://fofobar.com/web2/](http://fofobar.com/web2/) and [http://fofobar.com/web-ext/](http://fofobar.com/web-ext/). Read messages in the console.
 
 ### TODO
-- rest api silhoette client (so clients don't need to hit DB and get all bunch of dependencies...)
-- other providers
+- Rest API Silhoette client (so clients don't need to hit DB and get all bunch of dependencies...)
+- Other providers
