@@ -54,7 +54,7 @@ Spin up nginx using configuration:
 	}
 ```
 
-Start your database `docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres`
+Start your database `docker run -e POSTGRES_PASSWORD=mysecretpassword -p 9050:5432 postgres`
 Start auth api `sbt ";project auth-api; run 9000"`
 Start play clients `sbt ;project bar-api; run 9001`
 
