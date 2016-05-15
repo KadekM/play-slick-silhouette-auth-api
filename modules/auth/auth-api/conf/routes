@@ -1,0 +1,69 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# -- Health
+GET           /health                          auth.api.controllers.HealthController.fetch
+
+
+# -- Signing in and out
+POST          /signin/credentials              auth.api.controllers.SignInCredentialsController.signIn
+
+POST          /signin/:provider                auth.api.controllers.SignInSocialController.signIn(provider)
+
+GET           /signout                         auth.api.controllers.SignOutController.signOut
+
+
+# -- Tokens
+POST        /tokens/:token                   auth.api.controllers.TokensController.execute(token)
+
+
+# -- Users
+GET        /users                             auth.api.controllers.UsersController.listAll
+
+# TODO: /users/:uuid should return whole aggregate of companies and permissions
+# Get's all of user's info, including permissions and businesses he is assigned to
+GET        /users/:uuid                       auth.api.controllers.UsersController.get(uuid)
+
+# Update user's info
+PUT        /users/:uuid                       auth.api.controllers.UsersController.update(uuid)
+
+# List users permissions
+GET        /users/:uuid/permissions           auth.api.controllers.PermissionsController.getForUser(uuid)
+
+# Give user a permission
+POST       /users/:uuid/permissions           auth.api.controllers.PermissionsController.grant(uuid)
+
+# Revoke user's permission
+DELETE     /users/:uuid/permission/:permission  auth.api.controllers.PermissionsController.revoke(permission, uuid)
+
+# Create new user
+POST       /users                             auth.api.controllers.UsersController.signUpRequestRegistration
+
+# Get user by login info - used by authentication framework via http
+GET        /users/login/:providerID/:providerKey auth.api.controllers.UsersController.getByLoginInfo(providerID, providerKey)
+
+
+# -- Resetting password
+# Generates a token and sends email for user to use to reset password
+POST       /reset-password                    auth.api.controllers.TodoController.todo0
+
+
+# -- Roles
+# Gets all possible roles
+GET        /roles                             auth.api.controllers.TodoController.todo0
+
+
+# -- Permissions
+# Lists all possible permissions
+GET        /permissions                       auth.api.controllers.PermissionsController.listPossible
+
+# Lists all assigned permissions (links between users and permissions)
+GET        /permissions/assigned              auth.api.controllers.PermissionsController.listAssigned
+
+# -- Verifies (TODO: all)
+GET         /verify                           auth.api.controllers.VerifyController.verify
+
+GET         /verify/admin                     auth.api.controllers.VerifyController.verifyAdmin
+
+GET         /verify/roles                     auth.api.controllers.VerifyController.verifyRoles

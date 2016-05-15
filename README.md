@@ -1,17 +1,15 @@
-This is example on having central REST endpoint for auth related stuff, and securing other endpoints
-using same known silhouette mechanism. Currently each client hits DB containing authentication data
-on its own, but that can be implemented differently if one wishes to have single central point.
+## Auth api
 
-# Architecture
+Projects are split into modules. If in future we wish to deploy separatedly (microservices and such),
+they should be split by those.
 
-`Auth-core` contains shared functionality that APIs that require authentication and authorization
-should depend on. It introduces configurable stuff which can be found in reference.conf. You need
-to enable some default functionality in modules (check auth-api's application.conf)
+For authentication your API can either depend on `auth-direct` project, to hit directly DB, or use
+`auth-http` for cleaner authentication via HTTP (your api does http request behind the scenes on auth-api,
+so it must be running at this point).
 
-`Auth-api` is api for auth related stuff. You can do stuff as signing up/in, giving permissions etc.
+There are lots of TODOs, but hopefully nothing massive.
 
-`Some-auth-core` represents some unrelated API that would like to use same authentication, in other words,
-someone can register on Auth-api and can then use same login on different api.
+For tests you need to run docker as mentioned below.
 
 ## Layering
 
@@ -23,10 +21,15 @@ i.e., Service can depend on interfaces from Persistence and Model.
 
 DAOs - data access objects - execute queries against database.
 
-Repos - repositories - return actions, and it's up to caller to execute them, thus giving more fine-grained
-control over execution (if you want to run them in transactions etc), usually in services.
-
 Services - encapsulate business logic decision, and usually their code hit database (directly or through DAOs)
+
+## Tests
+
+If you wish to run local databases (which you should), you can use docker to do that easily:
+```
+➜ docker run --name auth-db-dev -d -e POSTGRES_PASSWORD=mysecretpassword -p 9050:5432 postgres
+➜ docker run --name auth-db-test -d -e POSTGRES_PASSWORD=mysecretpassword -p 9090:5432 postgres
+```
 
 # Try it out
 
@@ -38,7 +41,7 @@ First, set up your `etc/hosts`:
 Spin up nginx using configuration:
 ```
   location / {
-            root   /Users/?someuser?/Code/play-slick-silhouette-auth-api/modules/webs/;
+            root   /Users/?someuser?/?yourcheckoutdir?/modules/auth-api/webs/;
             index  index.html index.htm;
         }
 
@@ -52,12 +55,8 @@ Spin up nginx using configuration:
 ```
 
 Start your database `docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres`
-Start auth api `sbt ";project authApi; run 9000"`
-Start play clients `sbt ;project someAuthClient; run 9001`
+Start auth api `sbt ";project auth-api; run 9000"`
+Start play clients `sbt ;project bar-api; run 9001`
 
 Access websites through `http://fofobar.com/web1/` and `http://fofobar.com/web2/` and `http://fofobar.com/web-ext/` and
 read messages in developer console.
-
-### TODO
-- rest api silhoette client (so clients don't need to hit DB and get all bunch of dependencies...)
-- other providers

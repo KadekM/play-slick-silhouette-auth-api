@@ -1,43 +1,62 @@
-name := "play-slick-silhouette-auth-api"
+import Common._
 
-lazy val commonSettings = Seq(
-  version := "0.1",
-  scalaVersion := "2.11.8",
-resolvers += "Atlassian Releases" at "https://maven.atlassian.com/public/"
-)
+import Templates._
+import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
+import sbtrelease.ReleaseStateTransformations._
 
+name := "auth-api"
+scalaVersion := scalaVersionString
+organization := organisationString
+scalafmtConfig in ThisBuild := Some(file(".scalafmt"))
 
-lazy val authCore = project.in(file("modules/auth-core"))
-  .settings(commonSettings: _*)
-    .settings(libraryDependencies ++= Seq(
-      "com.mohiva" %% "play-silhouette" % "4.0.0-BETA4" % Compile,
-      "com.mohiva" %% "play-silhouette-password-bcrypt" % "4.0.0-BETA4" % Compile,
-      "com.mohiva" %% "play-silhouette-persistence" % "4.0.0-BETA4" % Compile,
-      "net.codingwell" %% "scala-guice" % "4.0.1" % Compile,
-      "org.postgresql" % "postgresql" % "9.4.1208.jre7" % Compile,
-      "com.typesafe.play" %% "play-slick" % "2.0.0" % Compile,
+concurrentRestrictions in Global += Tags.limit(Tags.Test, 1)
+parallelExecution in ThisBuild := false
 
-      "com.github.tminglei" %% "slick-pg" % "0.12.2" % Compile,
-      "com.github.tminglei" %% "slick-pg_play-json" % "0.12.2" % Compile,
-      "com.github.tminglei" %% "slick-pg_date2" % "0.12.2" % Compile,
+// Projects
+lazy val authCore = Project(id = "auth-core", base = file("modules/auth/auth-core"))
+  .configure(makeLibrary)
+  .settings(libraryDependencies ++= Dependencies.authCoreDependencies)
 
-      "org.scalacheck" %% "scalacheck" % "1.12.5" % Test
-    ))
+lazy val authDirect = Project(id = "auth-direct", base = file("modules/auth/auth-direct"))
+  .configure(makeLibrary)
+  .dependsOn(authCore % "compile->compile;test->test")
+  .settings(libraryDependencies ++= Dependencies.authDirectDependencies)
 
-lazy val authApi = project.in(file("modules/auth-api"))
-      .settings(commonSettings: _*)
-        .settings(libraryDependencies ++= Seq(
-          "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0" % Compile,
-          "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test,
-          "com.mohiva" %% "play-silhouette-testkit" % "4.0.0-BETA4" % Test,
-          "org.mockito" % "mockito-core" % "2.0.52-beta" % Test,
-            filters
-        ))
-      .enablePlugins(PlayScala).dependsOn(authCore % "compile->compile;test->test")
+lazy val authApi = Project(id = "auth-api", base = file("modules/auth/auth-api"))
+    .configure(makeRestApi)
+    .dependsOn(authDirect % "compile->compile;test->test")
+    .settings(libraryDependencies ++= Dependencies.authApiDependencies)
 
-lazy val someAuthClient = (project in file("modules/some-auth-client"))
-    .settings(commonSettings: _*)
-    .settings(libraryDependencies ++= Seq(
-      filters
-    ))
-    .enablePlugins(PlayScala).dependsOn(authCore % "compile->compile;test->test")
+lazy val authHttp = Project(id = "auth-http", base = file("modules/auth/auth-http"))
+  .configure(makeLibrary)
+  .dependsOn(authCore % "compile->compile;test->test")
+  .settings(libraryDependencies ++= Dependencies.authHttpDependencies)
+
+lazy val barApi = Project(id = "bar-api", base = file("modules/bar/bar-api"))
+  .configure(makeRestApi)
+  .dependsOn(authHttp % "compile->compile;test->test")
+  .settings(libraryDependencies ++= Dependencies.barApiDependencies)
+
+lazy val root = Project(id = "root", base = file("."))
+	.aggregate(authDirect, authHttp, authCore, authApi, barApi)
+  .enablePlugins(UniversalPlugin)
+  .settings(
+    publishArtifact := false, // root itself is not artifact, only subprojects
+
+    releaseVersionBump := sbtrelease.Version.Bump.Bugfix,
+
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishArtifacts,
+      releaseStepTask(publish in Universal in barApi),
+      releaseStepTask(publish in Universal in authApi),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
+  )
