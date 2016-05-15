@@ -1,6 +1,6 @@
-## Auth api
+## Overview
 
-Projects are split into modules; this would support finer-grained deployment, for example microservices. Two module 'packages' are used: `auth` and `bar`.
+Projects are split into modules; this would support fine-grained deployment, for example microservices. Two module 'packages' are used: `auth` and `bar`.
 
 **auth**
 
@@ -19,7 +19,7 @@ Code is layered:
 
 `Model <- Persistence <- Service <- Formatting <- Controllers`
 
-i.e., Service can depend on interfaces from Persistence and Model.
+For example, `Service` can depend on interfaces from `Persistence` and `Model`.
 
 ## Separation
 
