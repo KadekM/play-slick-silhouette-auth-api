@@ -60,3 +60,5 @@ lazy val root = Project(id = "root", base = file("."))
       pushChanges
     )
   )
+
+enablePlugins(GitBranchPrompt)
