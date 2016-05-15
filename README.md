@@ -1,21 +1,25 @@
-## Auth api
+## Overview
 
-Projects are split into modules. If in future we wish to deploy separatedly (microservices and such),
-they should be split by those.
+Projects are split into modules; this would support fine-grained deployment, for example microservices. Two module 'packages' are used: `auth` and `bar`.
 
-For authentication your API can either depend on `auth-direct` project, to hit directly DB, or use
-`auth-http` for cleaner authentication via HTTP (your api does http request behind the scenes on auth-api,
-so it must be running at this point).
+**auth**
 
-There are lots of TODOs, but hopefully nothing massive.
+ * `auth-api` - what is this?
+ * `auth-core` - what is this?
+ * `auth-direct` - provides the raw authentication service, which directly access the database
+ * `auth-http` - provides an authentication service over HTTP by leveraging `auth-api`
 
-For tests you need to run docker as mentioned below.
+**bar**
+
+ * bar-api - what is this?
 
 ## Layering
 
-Code is simply layered to keep dependencies linear.
+Code is layered:
+
 `Model <- Persistence <- Service <- Formatting <- Controllers`
-i.e., Service can depend on interfaces from Persistence and Model.
+
+For example, `Service` can depend on interfaces from `Persistence` and `Model`.
 
 ## Separation
 
@@ -39,24 +43,30 @@ First, set up your `etc/hosts`:
 ```
 
 Spin up nginx using configuration:
-```
-  location / {
-            root   /Users/?someuser?/?yourcheckoutdir?/modules/auth-api/webs/;
-            index  index.html index.htm;
-        }
 
-  location /auth/ {
-	    proxy_pass http://127.0.0.1:9000/;
+    location / {
+      root   /Users/?someuser?/Code/play-slick-silhouette-auth-api/modules/webs/;
+      index  index.html index.htm;
     }
 
-  location /client/ {
-	    proxy_pass http://127.0.0.1:9001/;
-	}
-```
+    location /auth/ {
+      proxy_pass http://127.0.0.1:9000/;
+    }
 
-Start your database `docker run -e POSTGRES_PASSWORD=mysecretpassword -p 9050:5432 postgres`
-Start auth api `sbt ";project auth-api; run 9000"`
-Start play clients `sbt ;project bar-api; run 9001`
+    location /client/ {
+      proxy_pass http://127.0.0.1:9001/;
+    }
 
-Access websites through `http://fofobar.com/web1/` and `http://fofobar.com/web2/` and `http://fofobar.com/web-ext/` and
-read messages in developer console.
+Start the Postgres database server:
+
+    docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres
+
+Start auth api:
+
+    sbt ";project authApi; run 9000"
+
+Start Play clients:
+
+    sbt ";project someAuthClient; run 9001"
+
+Access websites through [http://fofobar.com/web1/](http://fofobar.com/web1/), [http://fofobar.com/web2/](http://fofobar.com/web2/) and [http://fofobar.com/web-ext/](http://fofobar.com/web-ext/). Read messages in the console.
