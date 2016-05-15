@@ -1,20 +1,24 @@
 ## Auth api
 
-Projects are split into modules. If in future we wish to deploy separatedly (microservices and such),
-they should be split by those.
+Projects are split into modules; this would support finer-grained deployment, for example microservices. Two module 'packages' are used: `auth` and `bar`.
 
-For authentication your API can either depend on `auth-direct` project, to hit directly DB, or use
-`auth-http` for cleaner authentication via HTTP (your api does http request behind the scenes on auth-api,
-so it must be running at this point).
+**auth**
 
-There are lots of TODOs, but hopefully nothing massive.
+ * `auth-api` - what is this?
+ * `auth-core` - what is this?
+ * `auth-direct` - provides the raw authentication service, which directly access the database
+ * `auth-http` - provides an authentication service over HTTP by leveraging `auth-api`
 
-For tests you need to run docker as mentioned below.
+**bar**
+
+ * bar-api - what is this?
 
 ## Layering
 
-Code is simply layered to keep dependencies linear.
+Code is layered:
+
 `Model <- Persistence <- Service <- Formatting <- Controllers`
+
 i.e., Service can depend on interfaces from Persistence and Model.
 
 ## Separation
@@ -66,4 +70,3 @@ Start Play clients:
     sbt ";project someAuthClient; run 9001"
 
 Access websites through [http://fofobar.com/web1/](http://fofobar.com/web1/), [http://fofobar.com/web2/](http://fofobar.com/web2/) and [http://fofobar.com/web-ext/](http://fofobar.com/web-ext/). Read messages in the console.
-
