@@ -25,7 +25,7 @@ sealed class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[IDGenerator].toProvider[IDGeneratorProvider]
 
     bind[ExecutionContext]
-      .annotatedWith[SilhouetteContext]
+      .annotatedWith[SilhouetteContext] // TODO what does this do?
       .toProvider[SilhouetteExecutionContextProvider]
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[ClassTag[JWTAuthenticator]].toInstance(implicitly[ClassTag[JWTAuthenticator]])
@@ -64,6 +64,7 @@ private class IDGeneratorProvider @Inject()(@SilhouetteContext ec: ExecutionCont
   override def get(): IDGenerator = generator
 }
 
+// TODO what is this for?
 private class SilhouetteExecutionContextProvider @Inject()(system: ActorSystem)
     extends Provider[ExecutionContext] {
   override def get(): ExecutionContext =
