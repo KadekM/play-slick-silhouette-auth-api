@@ -4,14 +4,15 @@ Projects are split into modules; this would support fine-grained deployment, for
 
 **auth**
 
- * `auth-api` - what is this?
- * `auth-core` - what is this?
- * `auth-direct` - provides the raw authentication service, which directly access the database
- * `auth-http` - provides an authentication service over HTTP by leveraging `auth-api`
+
+ * `auth-core` - Provides basic functionality used by all other modules, including `auth-direct`.
+ * `auth-direct` - Provides the simplest and most direct implementation of an authentication/authorization API based on Silhouette and Play Framework. `auth-direct` contains the model, DAOs and related queries.
+ * `auth-api` - builds on `auth-direct` to provide endpoints for user sign up, token validation, sending emails (soon), and more to come.
+ * `auth-http` - provides an authentication service over HTTP by leveraging `auth-api`.
 
 **bar**
 
- * bar-api - what is this?
+ * bar-api - example external API
 
 ## Layering
 
