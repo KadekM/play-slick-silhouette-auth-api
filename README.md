@@ -12,7 +12,7 @@ Projects are split into modules; this would support fine-grained deployment, for
 
 **bar**
 
- * bar-api - example external API
+ * `bar-api` - example external API
 
 ## Layering
 
