@@ -69,7 +69,10 @@ If your Postgres server has a preconfigured user for this project, start `auth-a
 
 ... or start the `auth-api` Play webapp while overriding defaults:
 
-    $ AUTH_DB_USER=postgres AUTH_DB_PASSWORD=xxx AUTH_DB_URL=jdbc:postgresql://localhost:5432/postgres sbt ";project auth-api; run"
+    $ AUTH_DB_USER=postgres \
+    AUTH_DB_PASSWORD=xxx \
+    AUTH_DB_URL=jdbc:postgresql://localhost:5432/postgres \
+    sbt ";project auth-api; run"
 
 Start the `bar-api` client:
 
