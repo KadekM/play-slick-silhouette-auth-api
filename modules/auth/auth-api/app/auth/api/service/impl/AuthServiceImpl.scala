@@ -57,9 +57,9 @@ class AuthServiceImpl(protected val dbConfigProvider: AuthDatabaseConfigProvider
     }
   }
 
-  override def signIn(identifier: String, password: String)(
-      implicit request: RequestHeader): Future[SignInError \/ SignedIn] = {
-    val f = for {
+  override def signIn(identifier: String, password: String)
+                     (implicit request: RequestHeader): Future[SignInError \/ SignedIn] = {
+    val f: Future[(Option[User], LoginInfo)] = for {
       loginInfo <- credentialsProvider.authenticate(Credentials(identifier, password))
       maybeUser <- userService.retrieve(loginInfo)
     } yield (maybeUser, loginInfo)
