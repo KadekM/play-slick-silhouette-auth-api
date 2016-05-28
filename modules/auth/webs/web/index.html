@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title></title>
+        <title>Auth Test</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -14,20 +14,19 @@
         <link rel="stylesheet" href="css/main.css">
         <script src="js/vendor/modernizr-2.8.3.min.js"></script>
     </head>
-    <check>
-
+    <body>
         <p>This is a test of api</p>
         <button id="create_user">Create user</button>
-        <input id="token" type="textbox" value="latest token" /> <br/>
+        <input id="token" value="latest token" /> <br/>
         <button id="create_password">Create password</button><br/>
         <hr/>
-        If you dont check remember me, you will have to send X-Auth-Header with each request.
+        If you don't check <b>remember me</b>, you will have to send <code>X-Auth-Header</code> with each request.
         <br/>
-        <button id="login">Sign IN</button>
-        <input type="checkbox" id="remember_me" checked>Remember me</input> <br/>
+        <button id="login">Sign In</button>
+        <input type="checkbox" id="remember_me" checked>"Remember me" /> <br/>
         <hr/>
         <button id="verify-x">Verify with sending xauth</button> <br/>
-        <textarea id="xauth"> xauth to send with request" </textarea><br/>
+        <textarea id="xauth"> xauth to send with request </textarea><br/>
         <hr/>
         <button id="verify">Verify from cookies</button>
         <hr/>
